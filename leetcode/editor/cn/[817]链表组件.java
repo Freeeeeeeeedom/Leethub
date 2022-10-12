@@ -59,8 +59,11 @@ class Solution {
         int n = nums.length;
         HashSet<Integer> hs = new HashSet<>();
         for(int i=0;i<n;i++) hs.add(nums[i]);
+        //方便查询
+
         int ans = 0;
         while(head!=null){
+            //简单模拟
             if(hs.contains(head.val)) {
                 ans++;
                 while (head != null && hs.contains(head.val)) {
