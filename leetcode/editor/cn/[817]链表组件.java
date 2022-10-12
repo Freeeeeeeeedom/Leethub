@@ -41,6 +41,9 @@
 
 
 //leetcode submit region begin(Prohibit modification and deletion)
+
+import java.util.HashSet;
+
 /**
  * Definition for singly-linked list.
  * public class ListNode {
@@ -53,7 +56,22 @@
  */
 class Solution {
     public int numComponents(ListNode head, int[] nums) {
-
+        int n = nums.length;
+        HashSet<Integer> hs = new HashSet<>();
+        for(int i=0;i<n;i++) hs.add(nums[i]);
+        int ans = 0;
+        while(head!=null){
+            if(hs.contains(head.val)) {
+                ans++;
+                while (head != null && hs.contains(head.val)) {
+                    head = head.next;
+                }
+            }
+            else{
+                head = head.next;
+            }
+        }
+        return ans;
     }
 }
 //leetcode submit region end(Prohibit modification and deletion)
