@@ -1,0 +1,45 @@
+### 解题思路
+
+[思路来源：不同的好子序列数量](https://leetcode-cn.com/problems/number-of-unique-good-subsequences/solution/dong-tai-gui-hua-jing-dian-ti-mu-de-bian-n4h3/)
+以结尾的字母来划分集合，避免重复的子序列。
+遍历字符串，更新以当前字符串结尾的子序列数量为：以26个字母为结尾的子序列的数量（就是把当前字符串加到所有子序列的前面） + 1（自身）。
+遍历结束以后，以每种字符结束的子序列数量都已经计算好了。
+
+**例如**：abac字符。
+当遍历到第四个字符时，以c结尾的子序列数量为以下之和（因为每次更新都会增加一个字符，所以不会统计到重复的情况）：
+a结尾的子序列数量4：{a} + c,{ba} + c,{aba} + c,{aa} + c
+b结尾的子序列数量2：{b} + c,{ab} + c
+c结尾的子序列数量0：{}
+c自生1
+即为6.
+最终答案是dp[a] + dp[b] +dp[c] = 13
+
+### 代码
+
+* []
+
+```cpp
+class Solution {
+public:
+    int distinctSubseqII(string s) {
+        vector<long long> dp(26);
+        int mod = 1e9 + 7;
+        for(auto c:s){
+            dp[c - 'a'] = accumulate(dp.begin(),dp.end(),1ll) % mod; 
+        }
+        return accumulate(dp.begin(),dp.end(),0ll) % mod;
+    }
+};
+```
+
+* []
+
+```python
+class Solution:
+    def distinctSubseqII(self, s: str) -> int:
+        dp = [0 for _ in range(36)]
+        mod = int(1e9 + 7)
+        for c in s : dp[int(c,36)] = sum(dp,1) % mod
+        return sum(dp) % mod
+```
+
