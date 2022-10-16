@@ -57,8 +57,9 @@
 // Related Topics 深度优先搜索 广度优先搜索 并查集 图 👍 30 👎 0
 
 
-import java.util.ArrayDeque;
-import java.util.Queue;
+import org.checkerframework.checker.units.qual.A;
+
+import java.util.*;
 
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
@@ -97,26 +98,9 @@ class Solution {
 //        return true;
 //    }
     //并查集 解法
-    public boolean isBipartite(int[][] graph){
-        int n = graph.length;
-        UnionFind uf = new UnionFind(n);
-        for( int i=0;i<n;i++){
-            int[] adj = graph[i];
-            int count = adj.length;
-            for(int j=1;j<count;j++) uf.union(adj[0],adj[j]);
-            //并查集初始化
-        }
-        for(int i=0;i<n;i++){
-            int root = uf.find(i);
-            int[] adj = graph[i];
-            for(int node : adj){
-                if(uf.find(node) == root){
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+
+
+
 }
 
 class UnionFind{
