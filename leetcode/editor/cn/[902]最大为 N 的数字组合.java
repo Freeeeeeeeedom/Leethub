@@ -53,36 +53,63 @@
 
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
-    String[] digits;
-    int[] dp;
-    char[] s;
-    public int atMostNGivenDigitSet(String[] _digits, int n) {
-        digits = _digits;
-        s = String.valueOf(n).toCharArray();
-        int l = s.length;
-        dp = new int[l];
-        Arrays.fill(dp,-1);
-        return dfs(0,true,false);
-    }
-
-    public int dfs(int i ,boolean islimit, boolean isNum){
-        if(i == s.length){ return isNum ? 1 : 0;}
-        if(!islimit && isNum && dp[i] >= 0) return dp[i];
-
-        int ans =  0;
-        if(!isNum){ ans += dfs(i+1,false,false); }
-
-        int up = islimit ? s[i] :'9';
-        for(String d : digits){
-            if(d.charAt(0) > up) break;
-            ans += dfs(i+1, islimit && d.charAt(0) == up ,true);
+    int[] nums;
+    int dp(int x){
+        List<Integer> list = new ArrayList<>();
+        while(x != 0){
+            list.add(x % 10);
+            x /= 10;
         }
-        if(isNum && !islimit) dp[i] = ans;
+        //存入list
+
+        int n = list.size();
+        int m = nums.length;
+        int ans = 0;
+//长度等于x的分情况计算
+        for(int i=n-1;i>=0;i--){
+            int cur = list.get(i);
+            int l = 0;
+            int r = m-1;
+            while(l < r){
+                int mid = l + r + 1>>1;
+                if(nums[mid] <= cur) l = mid;
+                else r = mid - 1;
+            }
+            //找到可填入的最大的index
+            if(nums[r] > cur){
+                break;
+            }
+            else if(nums[r] == cur){
+                ans += r * (int)Math.pow(m,i);
+                if(i == 0) ans++;
+                //如果一直存在可相等的情况，那么相等情况均先加上不相等的情况，后续继续补上相等的情况即可
+            }
+            else{
+                ans += (r+1)*(int)Math.pow(m,i);
+                break;
+                //出现这种情况，说明不可能出现和num相等的情况，直接结束运算了，后面的所有情况都已经考虑
+            }
+        }
+//长度小于x的直接计算
+        for(int i=1,last=1;i<n;i++){
+            int cur = last * m;
+            ans += cur;
+            last = cur;
+        }
         return ans;
     }
+    public int atMostNGivenDigitSet(String[] _digits, int n) {
+        int l = _digits.length;
+        nums = new int[l];
+        for(int i=0;i<l;i++) nums[i]=Integer.parseInt(_digits[i]);
+        return dp(n);
+    }
+
 }
 //leetcode submit region end(Prohibit modification and deletion)
