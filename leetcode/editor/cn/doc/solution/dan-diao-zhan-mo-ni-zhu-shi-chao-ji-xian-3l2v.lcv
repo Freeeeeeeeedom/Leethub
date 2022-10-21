@@ -1,0 +1,101 @@
+> Problem: [901. 股票价格跨度](https://leetcode.cn/problems/online-stock-span/description/)
+
+[TOC]
+
+# 思路
+
+题意 -> 返回 今天股票价格的跨度：
+- 被定义为股票价格小于或等于今天价格的最大连续日数（从今天开始往回数，包括今天）
+
+那么我们可以使用一个数组，存储每一天的股票价格，当新的股票价格出来时，与数组中的每一个元素进行对比，因为是需要选择一个连续的跨度，所以我们可以使用从后向前的方式与数组元素对比，选择第一个比自己大的元素为结束，并将自己也存入数组中，方便下一次新元素对比
+
+在上述过程中当出现新元素就需要枚举数组所有元素，当数据量非常大的时候就需要枚举很长的数组元素，比如当前数组最大值才 8， 而且我们新元素的值为 9， 此时程序比不知道，所以需要枚举所有元素然后确定长度为 整个数组长度， 那么我们可以使用单独栈优化，记录最大值的位置。对于当前元素，我们只关心上一个比自己大的元素在什么位置，不关心中间存在什么元素，那么可以使用递减栈记录递减序列，每出现一个新元素就可以直接从递减栈中得到第一个比自己大的元素位置
+
+# Code
+
+* []
+
+```C
+typedef struct {//数组记录
+    int * ans;
+    int index;
+} StockSpanner;
+
+
+StockSpanner* stockSpannerCreate() {//创建并初始化
+    StockSpanner * obj = (StockSpanner *)malloc(sizeof(StockSpanner));
+    obj->ans = (int *)malloc(sizeof(int) * 15000);
+    memset(obj->ans, 0, sizeof(obj->ans));
+    obj->index = 0;
+    return obj;
+}
+
+int stockSpannerNext(StockSpanner* obj, int price) {
+    int count = 1;
+    //选择第一个比自己大的元素
+    for(int i = obj->index-1; i >= 0; i--)
+    {
+        if(obj->ans[i] <= price)
+            count++;
+        else 
+            break;
+    }
+    obj->ans[obj->index++] = price;
+    return count;
+}
+
+void stockSpannerFree(StockSpanner* obj) {
+    free(obj->ans);
+    free(obj);
+    return ;
+}
+
+/**
+ * Your StockSpanner struct will be instantiated and called as such:
+ * StockSpanner* obj = stockSpannerCreate();
+ * int param_1 = stockSpannerNext(obj, price);
+ 
+ * stockSpannerFree(obj);
+*/
+```
+
+* []
+
+```C++
+
+class StockSpanner {
+public:
+    StockSpanner() {//初始化
+        index = 0;
+        ans = new int[15000];
+        memset(ans, 0, sizeof(int) * 15000);
+    }
+    ~StockSpanner()
+    {
+        delete[] ans;
+    }
+    
+    int next(int price) {//选择第一个比自己大的值
+        int count = 1;
+        for(int i = index - 1; i >= 0; i--)
+        {
+            if(ans[i] <= price)
+                count++;
+            else 
+                break;
+        }
+        ans[index++] = price;
+        return count;
+    }
+
+    int index;
+    int * ans;
+};
+
+/**
+ * Your StockSpanner object will be instantiated and called as such:
+ * StockSpanner* obj = new StockSpanner();
+ * int param_1 = obj->next(price);
+ */
+```
+
