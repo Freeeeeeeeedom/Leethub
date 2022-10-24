@@ -116,7 +116,7 @@ class Solution {
         long COST = 0;
         long MIN = 0;
         for(int i=0;i<n;i++){
-            MIN = COST += 
+            MIN = COST +=
         }
     }
 }
