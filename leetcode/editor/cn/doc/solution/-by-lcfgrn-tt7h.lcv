@@ -1,0 +1,101 @@
+### 解题思路
+
+#### 提示一
+
+我们可以利用DFS先将一个小岛的全部元素都装入一个队列中。
+
+* java
+
+```java
+private void initQueue(int[][] grid, Queue<int[]> que) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (grid[i][j] == 1) {
+                dfs(grid, i, j, que);
+                return;
+            }
+        }
+    }
+}
+
+private void dfs(int[][] grid, int i, int j, Queue<int[]> que) {
+    que.offer(new int[]{i, j});
+    grid[i][j] = -1;
+    for (int[] dir : dirs) {
+        int ni = dir[0] + i, nj = dir[1] + j;
+        if (inArea(ni, nj) && grid[ni][nj] == 1) {
+            dfs(grid, ni, nj, que);
+        }
+    }
+}
+```
+
+#### 提示二
+
+然后利用BFS来将队列中的元素向四周扩散，如果遇到`grid[i][j] == 1`说明已连接另一个小岛，如此即可得到两座小岛相连需要的最小数目。
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    int[][] dirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    int n;
+
+    public int shortestBridge(int[][] grid) {
+        n = grid.length;
+        Queue<int[]> que = new ArrayDeque<>();
+        initQueue(grid, que);
+        int ans = 0;
+        while (!que.isEmpty()) {
+            int size = que.size();
+            for (int i = 0; i < size; i++) {
+                int[] p = que.poll();
+                for (int[] dir : dirs) {
+                    int ni = dir[0] + p[0], nj = dir[1] + p[1];
+                    if (!inArea(ni, nj) || grid[ni][nj] == -1) {
+                        continue;
+                    }
+                    if (grid[ni][nj] == 1) {
+                        return ans;
+                    } else if (grid[ni][nj] == 0) {
+                        grid[ni][nj] = -1;
+                        que.offer(new int[]{ni, nj});
+                    }
+                }
+            }
+            ++ans;
+        }
+        return ans;
+    }
+
+    private void initQueue(int[][] grid, Queue<int[]> que) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 1) {
+                    dfs(grid, i, j, que);
+                    return;
+                }
+            }
+        }
+    }
+
+    private void dfs(int[][] grid, int i, int j, Queue<int[]> que) {
+        que.offer(new int[]{i, j});
+        grid[i][j] = -1;
+        for (int[] dir : dirs) {
+            int ni = dir[0] + i, nj = dir[1] + j;
+            if (inArea(ni, nj) && grid[ni][nj] == 1) {
+                dfs(grid, ni, nj, que);
+            }
+        }
+    }
+
+    private boolean inArea(int i, int j) {
+        return i >= 0 && i < n && j >= 0 && j < n;
+    }
+
+}
+```
+

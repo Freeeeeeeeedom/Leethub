@@ -1,0 +1,109 @@
+## 模拟
+
+分两步走：
+
+1. 找到任意一座岛，BFS 扩展全岛
+2. 对找到的岛以多源 BFS 分步拓展，找到另一座岛的最短步数即最短的桥
+
+* []
+
+```Python
+class Solution:
+    def shortestBridge(self, grid: List[List[int]]) -> int:
+        dir = ((0, 1), (1, 0), (0, -1), (-1, 0))
+        n, m = len(grid), len(grid[0])
+        # 先随便找一个岛
+        st = list()
+        for i, row in enumerate(grid):
+            for j, c in enumerate(row):
+                if c == 1:
+                    st.append((i, j))
+                    grid[i][j] = -1
+                    break
+            if st: break
+        # 扩展全岛入队
+        p = 0
+        while p < len(st):
+            i, j = st[p]
+            for dx, dy in dir:
+                x, y = i + dx, j + dy
+                if x < 0 or x >= n or y < 0 or y >= m or grid[x][y] != 1:
+                    continue
+                st.append((x, y))
+                grid[x][y] = -1
+            p += 1
+        # 多源 BFS 找最短路
+        for step in range(n * m + 1):
+            st2 = list()
+            for i, j in st:
+                for dx, dy in dir:
+                    x, y = i + dx, j + dy
+                    if x < 0 or x >= n or y < 0 or y >= m or grid[x][y] == -1:
+                        continue
+                    if grid[x][y] == 1:
+                        return step
+                    st2.append((x, y))
+                    grid[x][y] = -1
+            st = st2
+        return -1
+```
+
+* []
+
+```C++
+class Solution {
+public:
+    int shortestBridge(vector<vector<int>>& grid) {
+        int dir[4][2]{{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+        int n = grid.size(), m = grid[0].size();
+        deque<int> st, st2;
+        // 先随便找一个岛
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                if (grid[i][j] == 1) {
+                    st.push_back(i * 1000 + j);
+                    grid[i][j] = -1;
+                    break;
+                }
+            }
+            if (!st.empty()) break;
+        }
+        // 扩展全岛入队
+        while (!st.empty()) {
+            int cur = st.front(); st.pop_front(); st2.push_back(cur);
+            int x = cur / 1000, y = cur % 1000;
+            for (int p = 0; p < 4; ++p) {
+                int i = x + dir[p][0], j = y + dir[p][1];
+                if (i < 0 || i >= n || j < 0 || j >= m) continue;
+                if (grid[i][j] == 0 || grid[i][j] == -1) continue;
+                st.push_back(i * 1000 + j);
+                grid[i][j] = -1;  // 原地标记一下已访问位置
+            }
+        }
+        // 分步 BFS 找最短路
+        for (int step = 0; !st2.empty(); ++step) {
+            // one step
+            for (int k = 0, s = st2.size(); k < s; ++k) {
+                int cur = st2.front(); st2.pop_front();
+                int x = cur / 1000, y = cur % 1000;
+                for (int p = 0; p < 4; ++p) {
+                    int i = x + dir[p][0], j = y + dir[p][1];
+                    if (i < 0 || i >= n || j < 0 || j >= m) continue;
+                    if (grid[i][j] == -1) continue;
+                    if (grid[i][j] == 1) return step;
+                    st2.push_back(i * 1000 + j);
+                    grid[i][j] = -1;
+                }
+            }
+        }
+        return -1;
+    }
+};
+```
+
+- 时间复杂度: $O(n^2)$
+- 空间复杂度: $O(n^2)$
+
+---
+
+**如果对你有帮助的话，请给我点个赞吧**~
