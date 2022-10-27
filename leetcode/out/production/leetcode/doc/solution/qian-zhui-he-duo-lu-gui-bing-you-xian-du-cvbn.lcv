@@ -1,0 +1,71 @@
+## 前缀和+多路归并+优先队列
+
+<br />
+
+**前缀和**
+
+由于本题要对多个子数组求和，可以直接利用前缀和数组实现，后续调用方便。
+
+* python
+
+```python
+# 前缀和数组
+sums = [0 for _ in range(n+1)]
+for i in range(1, n+1):
+    sums[i] = sums[i-1] + nums[i-1]
+```
+
+其中以$nums[i]$为起点，以$nums[j]$为终点的子数组之和为$sums[j+1] - sums[i]$。
+
+<br />
+
+**多路归并+优先队列**
+
+所有的连续子数组，可以看作是 **以每一个数组元素$nums[i]$为起点，以其后$i, …, n-1$处元素为终点的子数组序列**，共n个序列。
+
+$$
+nums[i], nums[i]+nums[i+1], ..., nums[i]+...+nums[n-1]
+$$
+
+对于这n个子数组序列进行多路归并，将元组$(val, i, idx)$加入优先队列pq，其中$val$为 **以$nums[i]$为起点，以$idx$为终点的子数组之和**；$i$代表是以$nums[i]$为起点的子数组序列；$idx$代表是以$nums[idx]$为终点的子数组。
+
+初始情况：n次循环将每一个元素单独作为子数组的情况加入优先队列。
+
+优先队列（小根堆）弹出一个$val$最小的元素，并将其序列的下一个子数组加入优先队列；
+
+最后只对$[left, right]$之间的$val$进行累加，返回即可。
+
+* python
+
+```python
+class Solution:
+    def rangeSum(self, nums: List[int], n: int, left: int, right: int) -> int:
+        mod = int(1e9+7)
+        # 前缀和数组
+        sums = [0 for _ in range(n+1)]
+        for i in range(1, n+1):
+            sums[i] = sums[i-1] + nums[i-1]
+        # 看作 以nums[i]为起点 的n个子数组序列 进行多路归并
+        pq = []
+        for i in range(n):
+            # (val, i, idx)代表前缀和数值, 以第i个数为起点, 到第idx个数为终点
+            # 加入 每个元素 作为n个子数组序列的起始数组
+            heappush(pq, (nums[i], i, i))
+        res = 0
+        for j in range(1, right+1):
+            val, i, idx = heappop(pq)
+            if idx + 2 <= n:
+                heappush(pq, (sums[idx+2] - sums[i], i, idx+1))
+            if j >= left:
+                res += val
+        return res % mod
+```
+
+注意，python的heapq/PriorityQueue默认比较元组的第一维，即$val$。
+
+<br />
+
+## 参考
+
+不了解多路归并思想的同学，建议可以阅读三叶姐对下面这道题的题解进行入门。
+[丑数II](https://leetcode.cn/problems/ugly-number-ii/solution/gong-shui-san-xie-yi-ti-shuang-jie-you-x-3nvs/)

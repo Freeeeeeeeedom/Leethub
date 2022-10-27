@@ -1,0 +1,91 @@
+## 序列 DP
+
+为了方便，我们令 `s` 下标从 $1$ 开始，定义 $f[i][j]$ 为考虑前 $i$ 个字符，且结尾字符为 $j$ 的不同子序列的个数，其中 $j$ 的范围为 $[0, 25]$ 代指小写字符 `a-z`。
+
+我们有显而易见的初始化条件 $f[0][X] = 0$，最终答案为 $\sum_{i = 0}^{25}f[n][i]$。
+
+不失一般性考虑 $f[i][j]$ 该如何转移，根据 $s[i]$ 是否为 $j$ 进行分情况讨论：
+
+* $s[i] \neq j$ : 由于状态定义限定了结尾字符必须是 $j$，因而 $s[i]$ 必然不会用到，此时有：
+
+$$
+f[i][j] = f[i - 1][j]
+$$
+
+* $s[i] = j$ : 此时 $s[i]$ 可作为结尾元素，同时由于我们统计的是「不同」的子序列个数，因而「以 $j$ 结尾的子序列方案数」与「以 $s[i]$ 结尾的子序列方案数」完全等价。
+  对于以 $s[i]$ 作为子序列结尾字符的方案数，容易想到其方案数等于「$s[i]$ 单独作为子序列」+「$s[i]$ 拼接在其余子序列后面行程新子序列」，即有：
+
+$$
+f[i][j] = 1 + \sum_{i = 0}^{25} f[i - 1][j]
+$$
+
+代码：
+
+* []
+
+```Java
+class Solution {
+    int MOD = (int)1e9+7;
+    public int distinctSubseqII(String s) {
+        int n = s.length(), ans = 0;
+        int[][] f = new int[n + 1][26];
+        for (int i = 1; i <= n; i++) {
+            int c = s.charAt(i - 1) - 'a';
+            for (int j = 0; j < 26; j++) {
+                if (c != j) {
+                    f[i][j] = f[i - 1][j];
+                } else {
+                    int cur = 1;
+                    for (int k = 0; k < 26; k++) cur = (cur + f[i - 1][k]) % MOD;
+                    f[i][j] = cur;
+                }
+            }
+        }
+        for (int i = 0; i < 26; i++) ans = (ans + f[n][i]) % MOD;
+        return ans;
+    }
+}
+```
+
+* 时间复杂度：$O(n \times C^2)$，其中 $C = 26$ 为字符集大小
+* 空间复杂度：$O(n \times C)$
+
+---
+
+## 转移优化
+
+根据转移的依赖关系，实现上，我们并不需要真正记录每一个 $f[i][X]$，而可以直接记录一个总的不同子序列方案数 `ans`。
+
+这可以避免每次计算新状态时，都累加前一个 $f[i - 1][X]$ 的值，有效减低时空复杂度。
+
+代码：
+
+* []
+
+```Java
+class Solution {
+    int MOD = (int)1e9+7;
+    public int distinctSubseqII(String s) {
+        int n = s.length(), ans = 0;
+        int[] f = new int[26];
+        for (int i = 0; i < n; i++) {
+            int c = s.charAt(i) - 'a', prev = f[c];
+            f[c] = (ans + 1) % MOD;
+            ans = (ans + f[c]) % MOD;
+            ans = (ans - prev + MOD) % MOD;
+        }
+        return ans;
+    }
+}
+```
+
+* 时间复杂度：$O(n)$
+* 空间复杂度：$O(C)$
+
+---
+
+## 最后
+
+**如果有帮助到你，请给题解点个赞和收藏，让更多的人看到 ~ ("▔□▔)/**
+
+所有题解已经加入 [刷题指南](https://github.com/SharingSource/LogicStack-LeetCode/wiki)，欢迎 star 哦 ~

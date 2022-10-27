@@ -1,0 +1,378 @@
+# 解法一
+
+## 思路和算法
+
+根据二分图的定义，图中任意一条边连接的两个结点属于不同的集合。可以使用广度优先搜索判断给定的图是否为二分图，搜索过程中将图中的每个结点着色，集合 $\text{A}$ 与集合 $\text{B}$ 的结点颜色分别是 $\text{A}$ 颜色与 $\text{B}$ 颜色。
+
+遍历 $n$ 个结点，如果遇到结点 $i$ 未着色，则结点 $i$ 所在的连通分量中的全部结点都未着色，将结点 $i$ 的颜色设为 $\text{A}$ 颜色，从结点 $i$ 开始遍历其所在的连通分量中的全部结点，将每个结点着色并判断是否为二分图。
+
+对于访问到的每个结点 $\textit{node}$，该结点一定已经着色，用 $\textit{color}$ 表示结点 $\textit{node}$ 的颜色，遍历与 $\textit{next}$ 相邻的每个结点，执行如下操作。
+
+- 如果相邻结点未着色，则将相邻结点的颜色设为与 $\textit{color}$ 不同的另一种颜色，继续访问相邻结点。
+
+- 如果相邻结点的颜色是 $\textit{color}$，则存在两个相邻结点的颜色相同，因此给定的图不是二分图，返回 $\text{false}$。
+
+如果遍历结束之后没有出现不符合二分图的着色情况，则给定的图是二分图，返回 $\text{true}$。
+
+上述做法的正确性说明如下。
+
+着色的过程中，每个连通分量的首个着色结点的颜色是 $\text{A}$ 颜色，对于其余每个结点，当该结点着色时，一定存在一个相邻结点的颜色与当前结点的颜色相反。如果遇到两个相邻结点的颜色相同，则任何着色方案都不可能使任意两个相邻结点的颜色不同，因此给定的图不是二分图。
+
+## 代码
+
+* [sol1-Java]
+
+```Java
+class Solution {
+    static final int UNKNOWN = 0;
+    static final int COLOR_A = 1;
+    static final int COLOR_B = 2;
+
+    public boolean isBipartite(int[][] graph) {
+        int n = graph.length;
+        int[] colors = new int[n];
+        for (int i = 0; i < n; i++) {
+            if (colors[i] != UNKNOWN) {
+                continue;
+            }
+            colors[i] = COLOR_A;
+            Queue<Integer> queue = new ArrayDeque<Integer>();
+            queue.offer(i);
+            while (!queue.isEmpty()) {
+                int node = queue.poll();
+                int color = colors[node];
+                int nextColor = color == COLOR_A ? COLOR_B : COLOR_A;
+                int[] adjacent = graph[node];
+                for (int next : adjacent) {
+                    if (colors[next] == UNKNOWN) {
+                        colors[next] = nextColor;
+                        queue.offer(next);
+                    } else if (colors[next] == color) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+}
+```
+
+* [sol1-C#]
+
+```C#
+public class Solution {
+    const int UNKNOWN = 0;
+    const int COLOR_A = 1;
+    const int COLOR_B = 2;
+
+    public bool IsBipartite(int[][] graph) {
+        int n = graph.Length;
+        int[] colors = new int[n];
+        for (int i = 0; i < n; i++) {
+            if (colors[i] != UNKNOWN) {
+                continue;
+            }
+            colors[i] = COLOR_A;
+            Queue<int> queue = new Queue<int>();
+            queue.Enqueue(i);
+            while (queue.Count > 0) {
+                int node = queue.Dequeue();
+                int color = colors[node];
+                int nextColor = color == COLOR_A ? COLOR_B : COLOR_A;
+                int[] adjacent = graph[node];
+                foreach (int next in adjacent) {
+                    if (colors[next] == UNKNOWN) {
+                        colors[next] = nextColor;
+                        queue.Enqueue(next);
+                    } else if (colors[next] == color) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+}
+```
+
+## 复杂度分析
+
+- 时间复杂度：$O(n + m)$，其中 $n$ 是图中的结点数，$m$ 是图中的边数。广度优先搜索的时间复杂度由结点数和边数决定。
+
+- 空间复杂度：$O(n)$，其中 $n$ 是图中的结点数。颜色数组和队列需要 $O(n)$ 的空间。
+
+# 解法二
+
+## 思路和算法
+
+也可以使用深度优先搜索判断给定的图是否为二分图，搜索过程中将图中的每个结点着色，集合 $\text{A}$ 与集合 $\text{B}$ 的结点颜色分别是 $\text{A}$ 颜色与 $\text{B}$ 颜色。
+
+遍历 $n$ 个结点，如果遇到结点 $i$ 未着色，则结点 $i$ 所在的连通分量中的全部结点都未着色，将结点 $i$ 的颜色设为 $\text{A}$ 颜色，从结点 $i$ 开始遍历其所在的连通分量中的全部结点，将每个结点着色并判断是否为二分图。
+
+对于访问到的每个结点 $\textit{node}$，该结点一定已经着色，用 $\textit{color}$ 表示结点 $\textit{node}$ 的颜色，遍历与 $\textit{next}$ 相邻的每个结点，执行如下操作。
+
+- 如果相邻结点未着色，则将相邻结点的颜色设为与 $\textit{color}$ 不同的另一种颜色，继续访问相邻结点。
+
+- 如果相邻结点的颜色是 $\textit{color}$，则存在两个相邻结点的颜色相同，因此给定的图不是二分图，返回 $\text{false}$。
+
+如果遍历结束之后没有出现不符合二分图的着色情况，则给定的图是二分图，返回 $\text{true}$。
+
+上述做法的正确性说明如下。
+
+着色的过程中，每个连通分量的首个着色结点的颜色是 $\text{A}$ 颜色，对于其余每个结点，当该结点着色时，一定存在一个相邻结点的颜色与当前结点的颜色相反。如果遇到两个相邻结点的颜色相同，则任何着色方案都不可能使任意两个相邻结点的颜色不同，因此给定的图不是二分图。
+
+## 代码
+
+* [sol2-Java]
+
+```Java
+class Solution {
+    static final int UNKNOWN = 0;
+    static final int COLOR_A = 1;
+    static final int COLOR_B = 2;
+    int n;
+    int[][] graph;
+    int[] colors;
+
+    public boolean isBipartite(int[][] graph) {
+        this.n = graph.length;
+        this.graph = graph;
+        this.colors = new int[n];
+        for (int i = 0; i < n; i++) {
+            if (colors[i] == UNKNOWN) {
+                if (!dfs(i, COLOR_A)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean dfs(int node, int color) {
+        colors[node] = color;
+        boolean valid = true;
+        int nextColor = color == COLOR_A ? COLOR_B : COLOR_A;
+        int[] adjacent = graph[node];
+        for (int next : adjacent) {
+            if (colors[next] == UNKNOWN) {
+                valid = dfs(next, nextColor);
+            } else if (colors[next] == color) {
+                valid = false;
+            }
+            if (!valid) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+```
+
+* [sol2-C#]
+
+```C#
+public class Solution {
+    const int UNKNOWN = 0;
+    const int COLOR_A = 1;
+    const int COLOR_B = 2;
+    int n;
+    int[][] graph;
+    int[] colors;
+
+    public bool IsBipartite(int[][] graph) {
+        this.n = graph.Length;
+        this.graph = graph;
+        this.colors = new int[n];
+        for (int i = 0; i < n; i++) {
+            if (colors[i] == UNKNOWN) {
+                if (!DFS(i, COLOR_A)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public bool DFS(int node, int color) {
+        colors[node] = color;
+        bool valid = true;
+        int nextColor = color == COLOR_A ? COLOR_B : COLOR_A;
+        int[] adjacent = graph[node];
+        foreach (int next in adjacent) {
+            if (colors[next] == UNKNOWN) {
+                valid = DFS(next, nextColor);
+            } else if (colors[next] == color) {
+                valid = false;
+            }
+            if (!valid) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+```
+
+## 复杂度分析
+
+- 时间复杂度：$O(n + m)$，其中 $n$ 是图中的结点数，$m$ 是图中的边数。深度优先搜索的时间复杂度由结点数和边数决定。
+
+- 空间复杂度：$O(n)$，其中 $n$ 是图中的结点数。颜色数组和递归调用栈需要 $O(n)$ 的空间。
+
+# 解法三
+
+## 预备知识
+
+该解法涉及到并查集。
+
+并查集是一种树型的数据结构，用于处理不相交集合的合并与查询问题。
+
+## 思路和算法
+
+判断给定的图是否为二分图，可以将属于同一个集合的结点合并，然后遍历每一条边，根据同一条边连接的两个结点所属的集合判断给定的图是否为二分图。
+
+并查集初始化时，$n$ 个结点分别属于 $n$ 个不同的集合，每个集合只包含一个结点。
+
+初始化之后，执行合并操作。对于结点 $i$，$\textit{graph}[i]$ 中的所有结点都和结点 $i$ 属于不同的集合，因此 $\textit{graph}[i]$ 中的所有结点属于同一个集合，将这些结点所在的集合做合并。
+
+合并操作结束之后，遍历每一条边，执行如下判断。
+
+- 如果存在同一条边连接的两个结点属于同一个集合，则给定的图不是二分图，返回 $\text{false}$。
+
+- 如果每一条边连接的两个结点都属于不同集合，则给定的图是二分图，返回 $\text{true}$。
+
+## 代码
+
+* [sol3-Java]
+
+```Java
+class Solution {
+    public boolean isBipartite(int[][] graph) {
+        int n = graph.length;
+        UnionFind uf = new UnionFind(n);
+        for (int i = 0; i < n; i++) {
+            int[] adjacent = graph[i];
+            int count = adjacent.length;
+            for (int j = 1; j < count; j++) {
+                uf.union(adjacent[0], adjacent[j]);
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            int root = uf.find(i);
+            int[] adjacent = graph[i];
+            for (int j : adjacent) {
+                if (uf.find(j) == root) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+
+class UnionFind {
+    private int[] parent;
+    private int[] rank;
+
+    public UnionFind(int n) {
+        parent = new int[n];
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;
+        }
+        rank = new int[n];
+    }
+
+    public void union(int x, int y) {
+        int rootx = find(x);
+        int rooty = find(y);
+        if (rootx != rooty) {
+            if (rank[rootx] > rank[rooty]) {
+                parent[rooty] = rootx;
+            } else if (rank[rootx] < rank[rooty]) {
+                parent[rootx] = rooty;
+            } else {
+                parent[rooty] = rootx;
+                rank[rootx]++;
+            }
+        }
+    }
+
+    public int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+}
+```
+
+* [sol3-C#]
+
+```C#
+public class Solution {
+    public bool IsBipartite(int[][] graph) {
+        int n = graph.Length;
+        UnionFind uf = new UnionFind(n);
+        for (int i = 0; i < n; i++) {
+            int[] adjacent = graph[i];
+            int count = adjacent.Length;
+            for (int j = 1; j < count; j++) {
+                uf.Union(adjacent[0], adjacent[j]);
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            int root = uf.Find(i);
+            int[] adjacent = graph[i];
+            foreach (int j in adjacent) {
+                if (uf.Find(j) == root) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+
+class UnionFind {
+    private int[] parent;
+    private int[] rank;
+
+    public UnionFind(int n) {
+        parent = new int[n];
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;
+        }
+        rank = new int[n];
+    }
+
+    public void Union(int x, int y) {
+        int rootx = Find(x);
+        int rooty = Find(y);
+        if (rootx != rooty) {
+            if (rank[rootx] > rank[rooty]) {
+                parent[rooty] = rootx;
+            } else if (rank[rootx] < rank[rooty]) {
+                parent[rootx] = rooty;
+            } else {
+                parent[rooty] = rootx;
+                rank[rootx]++;
+            }
+        }
+    }
+
+    public int Find(int x) {
+        if (parent[x] != x) {
+            parent[x] = Find(parent[x]);
+        }
+        return parent[x];
+    }
+}
+```
+
+## 复杂度分析
+
+- 时间复杂度：$O(n + m \times \alpha(m))$，其中 $n$ 是图中的结点数，$m$ 是图中的边数，$\alpha$ 是反阿克曼函数。并查集的初始化需要 $O(n)$ 的时间，然后遍历每条边执行 $O(m)$ 次合并操作，最后遍历每条边判断是否为二分图，因此并查集初始化之后的操作的时间复杂度是 $O(m \times \alpha(m))$，总时间复杂度是 $O(n + m \times \alpha(m))$。
+
+- 空间复杂度：$O(n)$，其中 $n$ 是图中的结点数。并查集需要 $O(n)$ 的空间。
+

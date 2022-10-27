@@ -1,0 +1,41 @@
+### 解题思路
+
+1、窗口内只能有两种水果
+2、进入第三种水果时，需要将左边界移动至只剩两种水果
+
+因此分别保存A水果和B水果最后一次出现的下标p1,p2，当遇上第三种水果时，将左边界l移动到最先消失的水果处，即l=min(p1,p2).同时，更新p1为剩下那种水果的下标，p1 = max(p1,p2)，p2为新水果下标，p2 = r。
+当水果仍为两种已保存时，更新此水果的最后出现下标。
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    int totalFruit(vector<int>& fruits) {
+        int res = 0;
+        int l = 0,r = 0;
+        int p1 = 0,p2 = 0;
+        while(r<fruits.size()){
+            while(r<fruits.size()&&(fruits[p1]==fruits[r]||fruits[p2]==fruits[r])){//右边界水果在两种水果中
+                if(fruits[p1]==fruits[r])p1 = r;//更新下标
+                else p2 = r;
+                ++r;
+            }//结束循环为遇上新水果或者遍历结束
+            res = max(res,r-l);
+            if(r == fruits.size())break;
+            if(p2==0){//初始时只有一种水果，因此此时遇上的新水果实际为第二种水果
+                p2 = r;
+            }
+            else{
+                l = min(p1,p2)+1;//左边界快速移动
+                p1 = max(p1,p2);//保留最后出现的一种水果
+                p2 = r;//加入新水果
+            }
+        }
+        return res;
+    }
+};
+```
+

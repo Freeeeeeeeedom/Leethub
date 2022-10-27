@@ -64,4 +64,5 @@ class Solution {
         return ans == Integer.MAX_VALUE ? -1 : ans;
     }
 }
+
 //leetcode submit region end(Prohibit modification and deletion)
