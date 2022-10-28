@@ -58,6 +58,17 @@
             </LeetcodeEditor>
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/editor/cn/[907]子数组的最小值之和.java">
+          <value>
+            <LeetcodeEditor>
+              <option name="contentPath" value="$PROJECT_DIR$/editor/cn/doc/content/[907]子数组的最小值之和.md" />
+              <option name="frontendQuestionId" value="leetcode.cn907" />
+              <option name="host" value="leetcode.cn" />
+              <option name="path" value="$PROJECT_DIR$/editor/cn/[907]子数组的最小值之和.java" />
+              <option name="titleSlug" value="sum-of-subarray-minimums" />
+            </LeetcodeEditor>
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/editor/cn/[915]分割数组.java">
           <value>
             <LeetcodeEditor>
