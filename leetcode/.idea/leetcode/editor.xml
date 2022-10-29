@@ -25,6 +25,17 @@
             </LeetcodeEditor>
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/editor/cn/[1773]统计匹配检索规则的物品数量.java">
+          <value>
+            <LeetcodeEditor>
+              <option name="contentPath" value="$PROJECT_DIR$/editor/cn/doc/content/[1773]统计匹配检索规则的物品数量.md" />
+              <option name="frontendQuestionId" value="leetcode.cn1773" />
+              <option name="host" value="leetcode.cn" />
+              <option name="path" value="$PROJECT_DIR$/editor/cn/[1773]统计匹配检索规则的物品数量.java" />
+              <option name="titleSlug" value="count-items-matching-a-rule" />
+            </LeetcodeEditor>
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/editor/cn/[1822]数组元素积的符号.java">
           <value>
             <LeetcodeEditor>
