@@ -1,0 +1,33 @@
+### 解题思路
+
+Python3+模拟+指针+前缀和
+
+### 代码
+
+* python3
+
+```python
+
+# 指针模拟生成神奇字符串
+s = "122"
+i = 2
+while len(s) < 100000:
+    if s[-1] == '1':
+        s += int(s[i])*'2'
+    else:
+        s += int(s[i])*'1'
+    i += 1
+
+# 预先存好统计字符串
+pre = [0]
+cnt = 0
+for va in s:
+    cnt += int(va=='1')
+    pre.append(cnt)
+del s
+
+class Solution:
+    def magicalString(self, n: int) -> int:
+        return pre[n]
+```
+

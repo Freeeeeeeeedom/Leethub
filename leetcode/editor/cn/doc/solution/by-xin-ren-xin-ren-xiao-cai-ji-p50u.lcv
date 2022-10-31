@@ -1,0 +1,29 @@
+两个指针，一个指向需要添加数次数的索引，一个指向添加的位置
+
+class Solution {
+public int magicalString(int n) {
+int[] res = new int[n];
+// 1的次数
+int ans = 0;
+// 指针 指向已经添加到的位置
+int add_index = 0;
+// 初始添加的数
+int num = 1;
+for (int i=0;i<n;i++) {
+//            每次添加的次数为i索引的值
+int add_num = 1;
+if (i != 0) {
+add_num = add_index == 1? 2: res[i];
+}
+while (add_index < n && add_num > 0) {
+res[add_index++] = num;
+add_num--;
+}
+num = num == 1 ? 2: 1;
+
+            ans += res[i] == 1 ? 1:0;
+        }
+        return ans;
+    }
+
+}

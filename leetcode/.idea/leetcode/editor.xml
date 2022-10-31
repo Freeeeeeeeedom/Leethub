@@ -58,6 +58,17 @@
             </LeetcodeEditor>
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/editor/cn/[481]神奇字符串.java">
+          <value>
+            <LeetcodeEditor>
+              <option name="contentPath" value="$PROJECT_DIR$/editor/cn/doc/content/[481]神奇字符串.md" />
+              <option name="frontendQuestionId" value="leetcode.cn481" />
+              <option name="host" value="leetcode.cn" />
+              <option name="path" value="$PROJECT_DIR$/editor/cn/[481]神奇字符串.java" />
+              <option name="titleSlug" value="magical-string" />
+            </LeetcodeEditor>
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/editor/cn/[784]字母大小写全排列.java">
           <value>
             <LeetcodeEditor>

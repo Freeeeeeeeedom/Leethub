@@ -1,0 +1,22 @@
+### 解题思路
+
+* 模拟：将整个过程看作一个函数映射就要好想不少。
+
+### 代码
+
+* python3
+
+```python
+class Solution:
+    def magicalString(self, n: int) -> int:
+        s='122'
+        cur=2
+        while len(s)<n:
+            if s[-1]=='1':
+                s+=int(s[cur])*'2'
+            else:
+                s+=int(s[cur])*'1'
+            cur+=1
+        return s[:n].count('1')
+```
+

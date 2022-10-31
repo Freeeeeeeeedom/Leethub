@@ -1,0 +1,44 @@
+### 解题思路
+
+题目说的云里雾里，我的建议是直接看样例：
+
+* 
+
+```
+s：1  2  2 1 1  2 1  2  2 1  2  2 
+s：1 22 11 2 1 22 1 22 11 2 11 22
+```
+
+观察上面的表现形式，寻找字符串s的构造规律。
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    int magicalString(int n) {
+        if(n<=3) return 1;
+        string ss="122";
+        int i=2,j=2,cnt=0;
+        //构造字符串s
+        while(ss.size()<n){
+            if(ss[j]=='2'){
+                if(ss[i]=='1') ss+="1",j+=1;
+                else ss+="11",j+=2;
+            }
+            else if(ss[j]=='1'){
+                if(ss[i]=='1') ss+="2",j+=1;
+                else ss+="22",j+=2;
+            }
+            // cout<<i<<" "<<j<<" "<<ss<<endl;
+            i++;
+        }
+        // cout<<ss<<endl;
+        for(int i=0;i<n;i++) if(ss[i]=='1') cnt++;
+        return cnt;
+    }
+};
+```
+
