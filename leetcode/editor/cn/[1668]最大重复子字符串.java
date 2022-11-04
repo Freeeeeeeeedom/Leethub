@@ -46,20 +46,15 @@
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
     public int maxRepeating(String sequence, String word) {
-        int ans = 0;
         int n = sequence.length();
-        for(int i=0;i<n;i++){
-
-            if(i+word.length() > n || !sequence.substring(i,i+word.length()).equals(word)) continue;
-            int temp = 0;
-            int flag = i;
-            while(i+word.length() <= n && sequence.substring(i,i+word.length()).equals(word)){
-                i = i+word.length();
-                temp += 1;
-            }
-            i = flag;
-            ans = Math.max(ans,temp);
-
+        int m = word.length();
+        int ans = 0;
+        int[] f = new int[n+10];
+        for(int i=0;i<=n;i++){
+            if(i - m < 0) continue;
+            String sub = sequence.substring(i-m,i);
+            if(sub.equals(word)) f[i] = f[i-m] + 1;
+            ans = Math.max(ans,f[i]);
         }
         return ans;
     }
