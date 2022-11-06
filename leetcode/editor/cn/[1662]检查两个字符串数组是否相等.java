@@ -42,6 +42,10 @@
 // Related Topics 数组 字符串 👍 51 👎 0
 
 
+import javax.sound.sampled.Port;
+import java.util.*;
+import java.util.stream.IntStream;
+
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
     public boolean arrayStringsAreEqual(String[] word1, String[] word2) {
@@ -51,5 +55,8 @@ class Solution {
         for(int i=0;i<word2.length;i++) b.append(word2[i]);
         return a.toString().equals(b.toString());
     }
+
+
+
 }
 //leetcode submit region end(Prohibit modification and deletion)
