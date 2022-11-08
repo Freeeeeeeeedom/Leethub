@@ -1,0 +1,37 @@
+#### 哈希思想
+
+一次遍历 $allowed$ ，将 $allowed$ 出现的字符保存到哈希集合 $h$ 。
+一次遍历 $words$ ，对每个字符串 $word$ 进行遍历。如果 $word$ 出现 $h$ 中没有的字符， $word$ 就不是一致字符串。反之 ， $word$ 就是一致字符串。
+
+#### 代码展示
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    int countConsistentStrings(string allowed, vector<string>& words) {
+        int h[26] = { 0 };
+        for (auto x : allowed) {
+            int i = x - 'a';
+            h[i]++;
+        }
+        int ans = 0;
+        for (auto word : words) {
+            int i = 0;
+            for (auto x : word) {
+                i = x - 'a';
+                if (0==h[i]) break;
+            }
+            if (h[i]) ans++;
+        }
+        return ans;
+    }
+};
+```
+
+#### 复杂度分析
+
+1. 时间复杂度:$O(n+\sum m_i)$， $n$ 是 $allowed$ 的长度，$m_i$ 是 $words$ 中每一个 $word$ 的长度。一次遍历 $allowed$ 的时间复杂度是 $O(n)$ ，一次遍历 $words$ 中每一个 $word$ 的时间复杂度是 $O(\sum m_i)$ 。
+2. 空间复杂度:$O(n)$。最坏情况 $n=26$ ，对应 $26$ 个字母的空间。
+
