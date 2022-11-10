@@ -1,0 +1,79 @@
+# 思路
+
+这道题考察bfs中抽象状态的定义和转移。
+状态定义：我们思考一下，如果是在二维表格中只存在简单的路和墙的存在（也就是最简单的bfs最短路问题），那么每个点的状态 = （x, y），也就是坐标本身。但在这道题中，小写字母可以看作了一种“对状态的额外增加”，也就是队列中的状态需要是（x, y, keys），其中keys是你所携带的钥匙信息。而大写字母可以看作是“墙”和“通路”的二选一结合体，具体是路还是墙取决于你是否携带对应的钥匙。
+状态转移：从队列头取出一个点，可以获得在此处的位置和携带钥匙数，向四个方向查看是否能走。“能走” 等价于 “下个状态不越界” && “没访问过下个状态” && （下个状态是通路 || 下个状态是大写字母 && 当前我有下个状态需要的钥匙）
+
+# 代码
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    const static int N = 35;
+    int n, m;
+    vector<string> grid;
+    int dx[4] = {0, 1, 0, -1};
+    int dy[4] = {-1, 0, 1, 0};
+    int dist[N][N][1 << 6] = {0};
+    int k;
+    int sx, sy;
+    int shortestPathAllKeys(vector<string>& _grid) {
+        grid = _grid;
+        n = grid.size(), m = grid[0].size();
+        for (int i = 0; i < n; i ++) {
+            for (int j = 0; j < m; j ++) {
+                if (grid[i][j] == '@') {
+                    sx = i, sy = j;
+                } else if (grid[i][j] >= 'a' && grid[i][j] <= 'z') {
+                    k ++;
+                }
+            }
+        }
+        //cout << sx << sy << endl << k << endl;
+        //return 1;
+        return bfs();
+    }
+    int bfs() {
+        int mask = 0;
+        queue<tuple<int, int, int>> q;
+        memset(dist, -1, sizeof(dist));
+        dist[sx][sy][mask] = 0;
+        q.push({sx, sy, mask});
+        while (q.size()) {
+            auto [x, y, mask] = q.front();
+            q.pop();
+            if (mask == (1 << k) - 1) return dist[x][y][mask];
+            for (int i = 0; i < 4; i ++) {
+                int nx = x + dx[i], ny = y + dy[i];
+                if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+                if (grid[nx][ny] == '#') continue;
+                if (dist[nx][ny][mask] != -1) continue;
+                if (grid[nx][ny] == '.' || grid[nx][ny] == '@') {
+                    q.push({nx, ny, mask});
+                    dist[nx][ny][mask] = dist[x][y][mask] + 1;
+                    printf("(%d, %d) -> (%d, %d)\n", x, y, nx, ny);
+                } else if (grid[nx][ny] >= 'a' && grid[nx][ny] <= 'z') {
+                    char c = grid[nx][ny];
+                    int nmask = mask | (1 << (c - 'a'));
+                    q.push({nx, ny, nmask});
+                    dist[nx][ny][nmask] = dist[x][y][mask] + 1;
+                    printf("(%d, %d) -> (%d, %d)\n", x, y, nx, ny);
+                } else if (grid[nx][ny] >= 'A' && grid[nx][ny] <= 'Z') {
+                    char c = grid[nx][ny];
+                    if (mask & (1 << (c - 'A'))) {
+                        q.push({nx, ny, mask});
+                        dist[nx][ny][mask] = dist[x][y][mask] + 1;
+                        printf("(%d, %d) -> (%d, %d)\n", x, y, nx, ny);
+                    } else {
+                        continue;
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+};
+```
+
