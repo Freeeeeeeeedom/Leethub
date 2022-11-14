@@ -1,0 +1,39 @@
+### 解题思路
+
+解决问题的第一步是理解题义。
+
+仔细阅读以后可以发现，这个问题本质上实际上是一个组合问题，即选出一个集合A非空真子集，该非空真子集与集合A有着相同的平均值，这样就不用再考虑第二个数组了。
+
+接下来就可以用递归的方法写出实现代码，不出意料，直接使用递归会超时，因此在此基本上加上记忆化就可以了。
+
+### 代码
+
+* javascript
+
+```javascript
+var splitArraySameAverage = function (nums) {
+    const n = nums.length;
+    if (n < 2) return false;
+    const sum = nums.reduce((a, b) => a + b);
+    const memo = Array.from({ length: n }, () => new Map());
+
+    return dfs(0, 0, 0);
+
+    function dfs(total, start, count) {
+        if (count == n) return false;
+        if (count > 0 && total * n == sum * count) return true;
+        if (!memo[start].has(total)) {
+            memo[start].set(total, true);
+            for (let i = start; i < n - 1; i++) {
+                if (dfs(total + nums[i], i + 1, count + 1)) return true;
+            }
+            memo[start].set(total, false);
+            return false;
+        }
+        else {
+            return memo[start].get(total);
+        }
+    }
+};
+```
+

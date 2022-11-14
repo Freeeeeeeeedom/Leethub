@@ -1,0 +1,22 @@
+## 状态压缩 + DP
+
+* c++
+
+```c++
+class Solution {
+public:
+    bool splitArraySameAverage(vector<int>& nums) {
+        int n=nums.size(), s=0;
+        bitset<132000> dp[17]={1};
+        for(auto &x: nums)  s += x;
+        for(int i=0;i<n;i++)
+            for(int j=min(i, n/2);j>=0;j--)
+                dp[j+1] |= dp[j]<<nums[i];
+        for(int i=1;i<=n/2;i++)
+            if(!(s*i%n) && dp[i][s*i/n])
+                return true;
+        return false;
+    }
+};
+```
+

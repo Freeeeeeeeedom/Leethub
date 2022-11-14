@@ -1,0 +1,83 @@
+### 解题思路
+
+本题算是稍微有点思维量的标准状压题。
+
+首先我们根据题干，令sum_all = M, num_all = n, sum_partA = x, num_partA = k, 则sum_partB = M - x, num_partB = n - k。
+若满足条件，则有 x / k = (M - x) / (n - k)，移项后得 xn - xk = mk - xk，则有 xn = mk，即 x / k = M / n。
+
+考虑到M与n，x与k都是大于0的整数，我们令d = gcd(M, n)，令 a = M / d, b = n / d，那必然a与b互素，M/n = a/b，a/b不可约。
+那么显然，x / k = M / n = a / b，显然有 x = a * p，k = b * p，其中 p = 1..d-1（不能等于d，否则partB为空了）。
+
+通过上述分析，我们可以得到总体的思路了，我们需要寻找到合法的p，使得 x = a * p, k = b * p 在nums中有解（即选k个数，使得和为x）。这样的话我们可以直接不用考虑partB的具体情况了，只要满足这个条件的partA存在，那么剩下的数组成的partB一定合法。
+
+然后就是如何找这个p。
+
+因为nums数组有不超过30个数，我们很容易联想到状态压缩（实际上也就是穷举），枚举状态mask，将这个状态对应的和求出来看是否满足x, k。
+但是一般状压，极限状态下（即O(n)的时间check这个状态的合法性）也最多支持n = 20，超过则有超时的风险，只要有风险的存在我们就不会认为这是合法算法。
+
+我们继续沿着这个思路，即然一次性寻找全部的1<<30不行，我们能不能分两块维护，然后进行合并？毕竟 1<<15 才 32768。
+那这样就很简单了，我们取中间位置 mid = (n - 1) / 2，将数组划分成两块：
+0 .. (n - 1) / 2                        长度l = mid + 1
+(n - 1) / 2 + 1 .. n - 1                长度r = n - mid - 1
+对于每一块，我们维护一个set[i]，保存该部分选择i个数的所有可能的sum。第一块我们设为st1，第二块为st2。
+如何维护的话，就是枚举mask（0为不选1位选），然后枚举每个为1的位置，统计个数和加和，然后insert到对应set中。详情见代码。
+
+最后一步就是合并寻找合法方案了，按照前述思路，我们枚举p = 1..d-1，得到我们要check的 x = a * p, y = b * p；
+然后枚举前半数组我们选择的个数i = 0..y，再枚举st1[i]中所有的可能结果q，然后到st2[y - i]中find(x - q)。
+若找到任意一组解，直接return true就行了。
+
+因为我们查找的频次可能会比较高，所以我们使用unordered_set，这样均摊find的复杂度是O(1)的，这样我们这题到此就完美结束了。
+
+时间复杂度分析的话，维护set部分是O(n * 2^(n / 2))，最后查询合法值的部分比较玄学，首先d可能会很大（比如最恶心的10^4 * 30 / 30），也可能非常小（1， 2）。
+然后因为我们使用的是set，所以最极限的情况是我们st1中所有的元素都要访问一遍，然后在st2中find，但是实际上会存在非常多相同的和存在。
+所以就类似于快速排序，最差复杂度是O(n^2)，常规数据的话均摊O(nlogn)，我们这个部分理论时间下限是O(10^4 * sum(i * 2^i){i = 0..15})，但是实际上均摊是非常小的。
+
+然后具体实现上难点主要在维护两个set的时候，对于长度，mask大小以及nums采集的具体下标要格外注意，因为涉及到二进制，很容易写错位，别的基本没有难点。
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution {
+private:
+    unordered_set<int> st1[32], st2[32];
+public:
+    void print_mask(int mask, int n) {
+        for(int i=0; i<n; i++) cout << ((mask & (1 << i)) > 0) ;
+        cout << endl;
+    }
+    bool splitArraySameAverage(vector<int>& nums) {
+        int n = nums.size(), sum = 0;
+        for(int i=0; i<n; i++) sum += nums[i];
+        int d = gcd(sum, n), a = sum / d, b = n / d;
+
+        for(int i=0; i<n+1; i++) st1[i].clear(), st2[i].clear();
+        int mid = (n - 1) / 2, l = mid + 1, r = n - mid - 1, M;
+
+        M = 1 << l;
+        st1[0].insert(0), st2[0].insert(0);
+        for(int mask = 0; mask < M; mask ++) {
+            int tot = 0, cnt = 0;
+            for(int i = 0; i < l; i++)
+                if ((1 << i) & mask) tot += nums[i], cnt += 1;
+            st1[cnt].insert(tot);
+        }
+        M = 1 << r;
+        for(int mask = 0; mask < M; mask ++) {
+            int tot = 0, cnt = 0;
+            for(int i = 0; i < r; i++)
+                if ((1 << i) & mask) tot += nums[i + mid + 1], cnt += 1;
+            st2[cnt].insert(tot);
+        }
+
+        for(int p = 1; p < d; p++) {
+            int x = a * p, y = b * p;
+            for(int i = 0; i <= y; i++) for(auto l : st1[i])
+                if (st2[y - i].find(x - l) != st2[y - i].end()) return true;
+        }
+        return false;
+    }
+};
+```
+

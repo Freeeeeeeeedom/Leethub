@@ -1,0 +1,184 @@
+# Solution 1：背包问题
+
+`sum(B)/num(B) =(sum(A)−sum(B))/(num(A)−num(B))`
+`sum(B)∗num(A)=sum(A)∗num(B);`
+因此我们将该问题转化为sum和num的配对问题,
+使得：
+`temp_sum/temp_num==avg(A)`
+我们将其看成0-1背包二维费用问题，引入三维dp表记录dp状态，第一维为前i个货品，第二维为组成的sum，第三维为前i个中有j个组成了这个sum。
+
+- 初始化条件 : `dp[i:size][0][0] = 1;`// 0个货品组成的sum为0。
+
+- 状态转移方程：`dp[i][sum][num] = dp[i − 1][sum][num] || dp[i − 1][sum − A[i − 1]][num − 1];`//上一个状态中已经有num个货品组成和为sum, 或当前货物可以与前 i - 1中 num-1个货品组成sum。
+
+- 输出条件：`num != size && sum ∗ size == total ∗ num；`
+
+正常方式的三维背包模板一定会超过时间限制，`O(1e5*(30)^2≈1e7)>1e6`。设法优化里面的两层循环，我们设想下临界状态，`sum(B) == sum(C) ==sum(A) / 2;` 若B或C超过了这个临界状态，`sum(B) ≥ sum(A) / 2`,  则`sum(C) ≤ sum(A)/2`。只有当`num(B) ≥ num(A)/2`, 因此，`num(C)≤num(A)/2`,那么我们就在dp状态中寻找C组, `dp[size + 1][sum / 2 + 1][size / 2 + 1];`
+
+* 
+
+```
+class Solution {
+public:
+    bool splitArraySameAverage(vector<int>& A) 
+    {
+        int size = A.size();
+        int sum = accumulate(A.begin(), A.end(), 0);
+        vector<vector<vector<int>>> dp (size + 1, vector<vector<int>> (sum / 2 + 1, vector<int> (size / 2 + 1, false)));
+        dp[0][0][0] = 1;
+        for (int i = 1; i <= size; ++i)
+        {
+            dp[i][0][0] = 1;
+            for (int j = 1; j <= sum / 2; ++j)
+            {
+                for (int k = 1; k <= size / 2; ++k)
+                {
+                    dp[i][j][k] = dp[i - 1][j][k];
+                    if (j >= A[i - 1] && (dp[i][j][k] || dp[i - 1][j - A[i - 1]][k - 1]))
+                    {
+                        dp[i][j][k] = 1;
+                        if (j * size == k * sum)
+                            return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+};
+
+```
+
+很可惜，依然不能通过获得AP。进一步优化，对dp表降维，里两层循环采用逆序迭代，取消dp表的第一维度。传统背包的三维dp表中，第一维当前状态依赖第一维上一个状态，在当前状态调用上一层状态值更新当前状态。在二维dp表中，取消第一维度，我们采用从后向前更新，调用前面的状态更新后面的状态，前面的状态此时没有得到更新，相当于三维dp表中对上一个状态的调用，用来更新当前状态。二维dp表，第一维度为前i个货物中j个货物组成的temp_sum, `j∈[A[i −1], sum/2]`。
+第二个维度为组成temp_sum的元素个数k，`k∈[size/2,1]`。状态转移方程为：`dp[j][k]  |=dp[j −A[i −1]][k −1]`;
+
+* 
+
+```
+class Solution {
+public:
+    bool splitArraySameAverage(vector<int>& A) 
+    {
+        int size = A.size();
+        int sum = accumulate(A.begin(), A.end(), 0);
+        vector<vector<int>> dp (sum / 2 + 1, vector<int> (size / 2 + 1, false));
+        dp[0][0] = 1;
+        int curSum = 0;
+        for (auto a : A)
+        {
+            curSum += a;
+            for (int j = curSum; j >= a; --j)
+            {
+                for (int k = size / 2; k >= 1; --k)
+                {
+                    if (!dp[j - a][k - 1])
+                        continue;
+                    dp[j][k] = 1;
+                    if (k != size && sum * k == size * j)
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+};
+
+```
+
+勉强通过测试用例。利用二进制位数的表达可以将该问题转化为最传统的0-1背包问题，找到temp_num个元素组成temp_sum。
+
+# Solution 2:二进制表达
+
+建立一维dp表，记录组成sum的元素个数，用二进制数位表达元素个数。dp[0] = 1, 代表 sum = 0 由一个数位表达；`dp[sum - A[i - 1]]<<1`, 将上一个状态的数位个数增加一，代表增加了一个元素。dp[sum]由几个数位组成代表了有几个元素组成。例如，dp[4] = 110， 则`temp_sum = 4` 由四个元素组成。
+通过 `temp_sum * size = sum * temp_num` 获得当前temp_sum需要由几个元素组成，‘与’操作 `dp[temp_sum] & temp_sum * size / sum == 1`, 判断是否符合输出条件。
+
+- 状态转移方程：`dp[sum]=dp[sum]  ∥ (dp[sum − A[i − 1]]≪1)`；
+
+- 输出条件：`1<<(temp_sum * size / sum) & dp[temp_sum] && temp_sum * size / sum != 0 &&temp_sum * size / sum != size`；
+
+可以发现这道复杂的三维dp问题变为了简单的0-1背包问题，只是决策层由正序变为逆序，因此维度由传统的二维降为一维。dp表中储存的是有多少个元素组成当前的temp_sum，只是二进制的数位表达。当我们恰好拿到合适的元素个数和元素和时，则输出true。在传统的0-1背包问题中，往往记录的是组成当前目标值的可行性，方案数等；而在当前问题中，我们只是记录组成目标元素的元素个数，其实没有改变0-1背包问题的本质，组合问题。
+
+* 
+
+```
+class Solution {
+public:
+    bool splitArraySameAverage(vector<int>& A) 
+    {
+        int size = A.size();
+        if (size <= 1) 
+            return false;
+        int sum = accumulate(A.begin(), A.end(), 0);
+        vector<int> dp (sum + 1, 0);
+        dp[0] = 1;
+        int curSum = 0;
+        for (auto a : A)
+        {
+            curSum += a;
+            for (int j = curSum; j >= a; --j)
+            {
+                dp[j] |= (dp[j - a] << 1);
+ 
+                if (j * size % sum == 0)
+                {
+                    int num = j * size / sum;
+                    if (num != 0 && num != size && dp[j] & (1 << num)) 
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+};
+```
+
+时间效率和空间效率得到很大改善，各在50%左右。
+
+# Solution 3:DFS + 剪枝
+
+`sum(B)/num(B) =(sum(A)−sum(B))/(num(A)−num(B))；`
+`sum(B)∗num(A)=sum(A)∗num(B);`
+将该问题转化为sum和num的配对问题, 使得 `temp_sum * size == sum * temp_num;` 那么我们枚举所有的可能的num。由上式所得 sum * temp_num / size = temp_sum。利用深度搜索判断能否找到temp_num个元素使得和为temp_sum，基础的DFS问题。
+
+* 
+
+```
+class Solution {
+public:
+    bool splitArraySameAverage(vector<int>& A) 
+    {
+        int size = A.size();
+        int sum = accumulate(A.begin(), A.end(), 0);
+        for (int i = 1; i <= size / 2; ++i)
+        {
+            if (sum * i % size != 0)
+                continue;
+            if (dfs(A, (sum * i) / size, i, 0))
+                return true;
+        }
+        return false;
+    }
+    bool dfs (vector<int> &A, int sum, int num, int idx)
+    {
+        if (sum == 0 && num == 0)
+            return true;
+        if (sum == 0 || num == 0)
+            return false;
+        if (idx == A.size())
+            return false;
+        if (dfs(A, sum - A[idx], num - 1, idx + 1))
+            return true;
+        
+        int i = idx;
+        while (i < A.size() && A[i] == A[idx])// fill out duplicate elements
+            i++;
+
+        if (dfs(A, sum, num, i))
+            return true;
+        return false;
+    }
+};
+```
+
+虽然DFS的时间效率为O(2^n), 但是由于将问题转化为temp_sum和temp_num的配对问题，输出条件更为严格，实际的时间效率和空间效率比上两个solution更高。
+

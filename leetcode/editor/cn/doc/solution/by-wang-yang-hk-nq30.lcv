@@ -1,0 +1,40 @@
+* 
+
+```
+class Solution {
+    public boolean splitArraySameAverage(int[] nums) {
+        int length = nums.length;
+        int sum = Arrays.stream(nums).sum();
+        boolean isPossible = false;
+        for (int i = 1; i < length; i++) {
+            if (sum * i % length == 0) {
+                isPossible = true;
+                break;
+            }
+        }
+        if (!isPossible) {
+            return false;
+        }
+        Arrays.sort(nums);
+        int[] tags=new int[sum+1];
+        tags[0]=1;
+        for (int i = 0; i < length; i++) {
+            int num = nums[i];
+            for (int j = sum; j >= 0; j--) {
+                int tmp = j - num;
+                if (tmp>=0) {
+                    tags[j]|=tags[tmp]<<1;
+                }
+            }
+        }
+        for (int i = 1; i < length; i++) {
+            int tmp = sum * i;
+            if (tmp %length== 0&&(tags[tmp/length]>>i&1)==1) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+```
+

@@ -1,0 +1,74 @@
+### 解题思路
+
+参考灵神模板
+[https://leetcode.cn/problems/partition-array-into-two-arrays-to-minimize-sum-difference/solution/zhe-ban-mei-ju-pai-xu-er-fen-by-endlessc-04fn/](模板)
+
+总之思路挺简单的，跟双向 bfs 一样可以大幅降低搜索空间
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution {
+    int total, n, m;
+    vector<unordered_set<int>> q;
+
+    // 从前半部分选 cnt 个数放到 A 能构成的 sum 的集合
+    void dfs1(vector<int>& a, int idx, int sum, int cnt){
+        if(idx == m){
+            q[cnt].insert(sum);
+            return;
+        }
+        dfs1(a, idx + 1, sum, cnt);
+        dfs1(a, idx + 1, sum + a[idx], cnt + 1);
+    }
+
+    // 从后半部分选 cnt 个数放到 A 能构成的 sum
+    bool dfs2(vector<int>& a, int idx, int sum, int cnt){
+        if(idx == n){
+            for(int c = 0; c <= m; c++){
+                // sum * (x + y) = n * (sum(x) + sum(y))
+                if(c + cnt == 0 || c + cnt == n || total * (c + cnt) % n != 0){
+                    continue;
+                }
+                int target = total * (c + cnt) / n - sum;
+                if(q[c].find(target) != q[c].end()){
+                    return true;
+                }
+            }
+            return false;
+        }
+        return dfs2(a, idx + 1, sum, cnt) || dfs2(a, idx + 1, sum + a[idx], cnt + 1);
+    }
+
+public:
+    bool splitArraySameAverage(vector<int>& a) {
+        if(a.size() == 1){
+            return false;
+        }
+        // avg(A) == avg(B)
+        // 设 A 为 sizeA， B 为 size2 (n - sizeA)
+        //    那么 sum(A) / size1 == sum(B) / size2 == sum - sum(B) / size(B)
+        //    sum * sizeA = n * sum(A)
+        
+        //    sum * (x + y) = n * (sum(x) + sum(y))
+        // 折半枚举
+
+        // 枚举 size1 的大小看此时的 sum 能否满足上式
+        n = a.size();
+        m = n / 2;   q.resize(m + 1);
+        total = accumulate(a.begin(), a.end(), 0);
+        dfs1(a, 0, 0, 0);
+        // cout << "123" << endl;
+        // for(int i = 0; i <= m; i++){
+        //     for(int v : q[i]){
+        //         cout << v << ',';
+        //     }
+        //     cout << endl;
+        // }
+        return dfs2(a, m, 0, 0);
+    }
+};
+```
+

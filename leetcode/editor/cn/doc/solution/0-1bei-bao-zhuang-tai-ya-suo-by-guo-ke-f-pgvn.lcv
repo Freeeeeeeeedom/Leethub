@@ -1,0 +1,79 @@
+设数组的平均数为avg，则该问题相当于在数组中取k个数，使得其和为k * avg。对应0-1背包问题为背包容量为k*avg的情况下，能不能取k件物品把它装满。背包总容量可以定为数组的和。
+
+回顾一下表示是否能装满的0-1背包模板：
+
+* 
+
+```
+for (int i = 0; i < v.length; i++) {
+    for (int j = C; j >= v[i]; j--) {
+        dp[j] = dp[j] || dp[j - v[i]];
+    }
+}
+```
+
+这里和普通背包问题有区别的就是**每个状态需要记录所有可能的k值，以便转移时将所有k值加一**，可以使用set来存储得到最直接的解法一：
+
+* 
+
+```
+public boolean splitArraySameAverage(int[] nums) {
+        int total = Arrays.stream(nums).sum();
+        Set<Integer>[] dp = new HashSet[total + 1];
+        dp[0] = new HashSet<>();
+        for (int i = 0; i < nums.length; i++) {
+            for (int j = total - 1; j >= nums[i]; j--) {
+                if (dp[j - nums[i]] != null) {
+                    if (dp[j] == null) {
+                        dp[j] = new HashSet<>();
+                    }
+                    if (j == nums[i]) {
+                        dp[j].add(1);
+                    }
+                    // 状态转移
+                    List<Integer> list = new ArrayList<>();
+                    for (int c : dp[j - nums[i]]) {
+                        list.add(c + 1);
+                    }
+                    dp[j].addAll(list);
+
+                    for (int c : dp[j]) {
+                        if (c * total == j * nums.length) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+```
+
+解法一勉强能过，耗时在1000ms，它主要是慢在用set存储带来的各种开销和额外的遍历操作。而由于本题的数据范围只有0-30，因此可以联想到用二进制做状态压缩。
+**用32位二进制的每一位来表示可选的k值，即第k位为1就表示可以选k个数字。计数+1操作就可以通过左移一位来实现。**
+另外由于将数组拆成两部分，我们只需要遍历sum/2的范围就可以了，优化后的解法二如下：
+
+* 
+
+```
+public boolean splitArraySameAverage(int[] nums) {
+    int total = Arrays.stream(nums).sum();
+    if (total == 0) {
+        return true;
+    }
+    int[] dp = new int[total / 2 + 1];
+    dp[0] = 1;
+    for (int i = 0; i < nums.length; i++) {
+        for (int j = total / 2; j >= nums[i] && j > 0; j--) {
+            dp[j] = dp[j] | dp[j - nums[i]] << 1;
+            if (j * nums.length % total == 0 && (1 << (j * nums.length / total) & dp[j]) > 0) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+```
+
+时间复杂度为O(N * sum/2)
+

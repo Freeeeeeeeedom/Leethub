@@ -1,0 +1,77 @@
+***
+
+### 解题思路
+
+【儿须成名酒须醉】Python3+折半搜索+位运算枚举
+
+### 代码
+
+- 执行用时：412 ms, 在所有 Python3 提交中击败了 49.58% 的用户
+- 内存消耗：21.2 MB, 在所有 Python3 提交中击败了 57.14% 的用户
+- 通过测试用例：111 / 111
+
+* python3
+
+```python
+class Solution:
+    def splitArraySameAverage(self, nums: List[int]) -> bool:
+
+        def state_compress(lst):
+            m = len(lst)
+            dct = defaultdict(set)
+            mi = {1 << i: lst[i] for i in range(m)}
+            dp = [0]*(1 << m)
+            dct[0].add(0)
+            for i in range(1, 1 << m):
+                dp[i] = dp[i & (i-1)] + mi[i & (-i)]
+                dct[bin(i).count("1")].add(dp[i])
+            return dct
+        
+        n = len(nums)
+        if n == 1:
+            return False
+        pre = state_compress(nums[:n // 2])
+        post = state_compress(nums[n // 2:])
+        sum0 = sum(nums)
+        for cnt1 in pre:
+            for sum1 in pre[cnt1]:
+                for cnt2 in post:
+                    if 0 < cnt1 + cnt2 < n:
+                        # 可以求得关键公式(sum1+sum2)/(cnt1+cnt2)=sum0/n
+                        sum2 = sum0 * (cnt1 + cnt2) / n - sum1
+                        if int(sum2) == sum2 and int(sum2) in post[cnt2]:
+                            return True
+        return False
+```
+
+***
+
+### 解题思路
+
+【儿须成名酒须醉】Python3+背包DP
+
+### 代码
+
+- 执行用时：1856 ms, 在所有 Python3 提交中击败了 12.61% 的用户
+- 内存消耗：95.6 MB, 在所有 Python3 提交中击败了 9.25% 的用户
+- 通过测试用例：111 / 111
+
+* python3
+
+```python
+class Solution:
+    def splitArraySameAverage(self, nums: List[int]) -> bool:
+        n, s = len(nums), sum(nums)
+        dp = [set() for _ in range(n)]
+        dp[0].add(0)
+        for num in nums:
+            for i in range(n - 1, 0, -1):
+                for x in dp[i - 1]:
+                    cur = x + num
+                    dp[i].add(cur)
+                    # 关键公式为子集的平均值等于全集的平均值
+                    if cur * n == s * i:
+                        return True
+        return False
+```
+

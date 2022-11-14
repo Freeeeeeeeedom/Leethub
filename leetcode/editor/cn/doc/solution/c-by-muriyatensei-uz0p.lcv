@@ -1,0 +1,41 @@
+![LeetCode 805.数组的均值 99.30%.jpg](https://pic.leetcode.cn/1668360551-YVvuJR-LeetCode%20805.%E6%95%B0%E7%BB%84%E7%9A%84%E5%9D%87%E5%80%BC%2099.30_.jpg)
+
+首先使用一些技巧，目的是把子问题的目标统一。
+
+这里选择把所有元素乘n，再减去所有元素的平均值（乘n后的平均值就是原来的总和）
+
+就把问题转化为在整个和为零的数组中，求一个和为零的子序列（其中子序列不能为空或全部）
+
+研究一下取值，可以发现最大的正/负数和是在 $sum$ 量级的，因此用 $bitset$ 开长度为 $sum * n$ 的数组，枚举所有能选到的和即可
+
+每次转移使用移位和按位与，时间可以看做与 $bitset$ 的长度相同量级（但是常数很小，印象中应该是可以相当于除以一个位宽）
+
+---
+
+这里还有一个细节是提前pop掉一个数字（目的是少遍历一个数字，任何一个都行），这样就自然的剔除了全选的情况
+
+### 代码
+
+* cpp
+
+```cpp
+constexpr int N = 10000*29;//10000*30*30;
+bitset<N*2+1> cache;
+class Solution {
+public:
+    bool splitArraySameAverage(vector<int> &nums) {
+        int n = nums.size(), sum = reduce(nums.begin(), nums.end(), 0);
+        for(int& x: nums) x = x * n - sum;
+        if (n <= n / gcd(sum, n)) return false;
+        cache.reset();
+        nums.pop_back();
+        for(int x: nums){
+            cache |= x > 0 ? (cache << x) : (cache >> -x);
+            cache.set(x+N);
+            if(cache.test(N)) return true;
+        }
+        return false;
+    }
+};
+```
+

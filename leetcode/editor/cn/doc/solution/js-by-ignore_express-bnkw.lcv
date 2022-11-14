@@ -1,0 +1,56 @@
+![image.png](https://pic.leetcode-cn.com/1655538544-EdpdWd-image.png)
+
+### 解题思路
+
+* js
+
+```js
+类似背包问题，在前 idx 索引，选出的数字和为 total，是否满足情况
+以 [idx] [total] 维度做二维缓存加速
+```
+
+### 代码
+
+* javascript
+
+```javascript
+/**
+ * @param {number[]} nums
+ * @return {boolean}
+ */
+
+var splitArraySameAverage = function(nums) {
+  const n = nums.length;
+  const sum = nums.reduce((prev, curr) => prev + curr, 0);
+  const memo = new Array(31).fill(0).map(() => new Map());
+
+  const dfs = (total, idx, count) => {
+    if (count === n) {
+      return false;
+    }
+
+    if (count && count < n && total / count === (sum - total) / (n - count)) {
+      memo[idx].set(total, true);
+      return true;
+    }
+
+    if (memo[idx].has(total)) {
+      return memo[idx].get(total);
+    }
+
+    for (let i = idx; i < n; i++) {
+      if (dfs(total + nums[i], i + 1, count + 1)) {
+        memo[idx].set(total, true);
+        return true;
+      }
+    }
+
+    memo[idx].set(total, false);
+
+    return false;
+  }
+
+  return dfs(0, 0, 0);
+};
+```
+

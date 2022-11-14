@@ -1,0 +1,50 @@
+设数组总和为sum,数组大小为n
+首先将数组拆分为两个部分得到两个长度为2^(n/2)的集合就不多说了
+接下来，已知一个集合中的一种取法：取c个，总和为s
+我们需要从另一个集合中取x个，和为y
+使得(sum-y-s)/(n-x-c)=(y+s)/(c+x)
+即sum/n=(y+s)/(c+x)
+c * sum+x * sum=n * y+n * s
+x * sum-n * y=n * s-c * sum
+两边式子可以看出就是取个反，所以可以哈希存储x * sum-n * y，第二个集合直接从哈希表里找就行了
+同时要注意要去除一个集合取空集的情况
+复杂度为$O(2^{n/2})$
+
+* 
+
+```
+class Solution {
+public:
+    void dfs(vector<int>&nums,int i,int r,vector<vector<int>>&a,int c,int s)
+    {
+        if(i==r)
+        {
+            a.push_back({c,s});
+            return;
+        }
+        dfs(nums,i+1,r,a,c,s);
+        dfs(nums,i+1,r,a,c+1,s+nums[i]);
+    }
+    bool splitArraySameAverage(vector<int>& nums) {
+        int sum=0;
+        for(auto&it:nums)
+        sum+=it;
+        int n=nums.size();
+        int i=0,j=n>>1;
+        vector<vector<int>>l;
+        dfs(nums,0,j,l,0,0);
+        vector<vector<int>>r;
+        dfs(nums,j,n,r,0,0);
+        unordered_map<int,int>mp;
+        for(auto&it:l)
+            mp[sum*it[0]-n*it[1]]=it[0];
+        for(auto&it:r)
+        {
+            if(mp.count(n*it[1]-sum*it[0])&&(it[0]||mp[n*it[1]-sum*it[0]])&&(it[0]+mp[n*it[1]-sum*it[0]]!=n))
+                return true;
+        }
+        return false;
+    }
+};
+```
+
