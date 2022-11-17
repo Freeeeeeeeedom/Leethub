@@ -1,0 +1,73 @@
+![image.png](https://pic.leetcode-cn.com/1665499535-aNduOU-image.png)
+
+这题一上来我直接就想暴力解决
+
+* js
+
+```js
+var numMatchingSubseq = function(s, words) {
+  let cnt = 0
+  for(const word of words) {
+    let i = 0, j = 0
+    while(i < s.length && j < word.length) {
+      if(s[i] === word[j]) {
+        j++
+      }
+      i++
+    }
+    if(j === word.length) cnt++
+  }
+  return cnt
+};
+```
+
+勉强通过，差点超时。
+
+暴力的问题在于会频繁遍历字符串s，而s是一个指数级长度的字符串。二分思路是把s中每个字符出现的位置记录在哈希表中，然后对word中的每个字符做查找。查找过程基于以下思路
+
+- 对于word中的每个字符 `c`，要让这个字符`c` 在s中出现的位置尽可能靠前，以让这个字符后面的字符更有可能出现在s中
+- posMap 中记录了每个字符串的下标，而且是一个单调递增的数组，通常单调递增很容易想到**二分**，事实也是如此
+- 搜索word中的每个字符`c`时，该字符前面的字符都搜索完之后，对s的指针停在了idx处，则接下来需要在posMap中找到字符`c`出现在idx后面的最靠前的下标
+- 用二分在 `posMap.get(c)` 中查找首个大于 idx 的下标，作为新的idx
+- `c` 后面的字符查找方式同`c`
+
+* javascript
+
+```javascript
+var numMatchingSubseq = function(s, words) {
+  const posMap = new Map()
+  let cnt = 0
+  for(let i=0;i<s.length;i++) {
+    if(!posMap.has(s[i])) posMap.set(s[i], [])
+    posMap.get(s[i]).push(i)
+  }
+  for(const word of words) {
+    let shouwldAdd = false
+    let idx = -1
+    for(let i=0;i<word.length;i++) {
+      if(!posMap.has(word[i])) break
+      const idxes = posMap.get(word[i])
+      if(idxes[idxes.length - 1] <= idx) break
+      idx = binarSearch(idxes, idx)
+      if(i === word.length - 1) shouwldAdd = true
+    }
+    if(shouwldAdd) {
+      cnt++
+    }
+  }
+  return cnt
+};
+function binarSearch(nums, target) {
+  let l = 0, r = nums.length - 1
+  while(l < r) {
+    const mid = Math.floor((l + r) / 2)
+    if(nums[mid] > target) {
+      r = mid
+    } else {
+      l = mid + 1
+    }
+  }
+  return nums[l]
+}
+```
+
