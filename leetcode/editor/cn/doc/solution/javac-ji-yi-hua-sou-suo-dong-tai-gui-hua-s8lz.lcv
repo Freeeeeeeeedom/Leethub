@@ -1,0 +1,136 @@
+- 解法一:记忆化搜索
+  对于A，B两种类型的汤最开始都有n毫升，有四种状态可以分配。根据观察可以发现，每个状态分配的毫升值都可以被25整除，因此我们将所有值都缩小25倍。若不能被25整除，则最后值多1，如26视作2，50视作2, 51视作3。
+
+- 状态如下：
+
+  * 
+
+  ```
+  (A消耗4，B)
+  (A消耗3，B消耗1)
+  (A消耗2，B消耗2)
+  (A消耗1，B消耗3)
+  ```
+
+  对于当前的A和B来说，可以由4个状态的概率相加 \* 每个状态的概率值0.25得到最终结果的概率。可以使用记忆化搜索来枚举该过程，
+
+- 终止状态有3种：
+
+  * 
+
+  ```
+  (A为0,B不为0) 概率值视为1
+  (A为0,B为0) 概率值视为0.5，因为汤A和汤B同时分配完的概率会 / 2
+  (A不为0,B为0) 概率为0
+  ```
+
+  但是由于$n <= 10^9$, 就算是使用了记忆化仍然会时间超时，其实我们可以通过输入尝试发现当n很大的时候例如大于4500 / 25 后，其答案概率会接近1。那么我们找到一个边界值180,只要折算后的n大于等于180,那么我可以直接返回1。
+
+- 时间复杂度：$O(m^2)$, 其中m=180
+
+- 空间复杂度：$O(m^2)$
+
+* []
+
+```java
+class Solution { 
+    double[][] dp;
+    public double soupServings(int n) {
+        n = (int)Math.ceil(n / 25.0);
+        if (n >= 180) return 1;
+        dp = new double[n + 5][n + 5];
+        return dfs(n, n);
+    }
+    double dfs(int a, int b) {  
+        if (a <= 0 && b > 0) return 1;
+        if (a <= 0) return 0.5;
+        if (b <= 0)  return 0;
+        if (dp[a][b] == 0) dp[a][b] = (dfs(a - 4, b) + dfs(a - 3 ,b - 1) + dfs(a - 2, b - 2) + dfs(a - 1, b - 3)) * 0.25;
+        return dp[a][b];
+    }
+}
+```
+
+* []
+
+```C++
+class Solution {
+public:
+   double dp[180][180];
+   double soupServings(int n) {
+        n = ceil(n / 25.0);
+        if (n >= 180) return 1; 
+        return dfs(n, n);
+    }
+    double dfs(int a, int b) {  
+        if (a <= 0 && b > 0) return 1;
+        if (a <= 0) return 0.5;
+        if (b <= 0)  return 0;
+        if (dp[a][b] == 0) dp[a][b] = (dfs(a - 4, b) + dfs(a - 3 ,b - 1) + dfs(a - 2, b - 2) + dfs(a - 1, b - 3)) * 0.25;
+        return dp[a][b];
+    }
+};
+```
+
+- 解法二：动态规划
+
+- 状态集合：dp\[i]\[j]A为$i$ml，B为$j$ml的概率值
+
+- 状态计算：
+  由四个状态可以转移过来，每个状态选择的概率为0.25，因此最后乘以0.25
+
+  * 
+
+  ```
+  (A-4，B)
+  (A-3，B-1)
+  (A-2，B-2)
+  (A-1，B-3)
+  ```
+- 时间复杂度：$O(m^2)$, 其中m=180
+
+- 空间复杂度：$O(m^2)$
+
+* []
+
+```java
+class Solution { 
+    public double soupServings(int n) {
+        n = (int)Math.ceil(n / 25.0);
+        if (n >= 180) return 1;
+        double[][] dp = new double[n + 5][n + 5];
+        Arrays.fill(dp[0], 1.0); //dp[0][j] A先为空
+        dp[0][0] = 0.5; //两者相等
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                dp[i][j] = 0.25 * (dp[Math.max(0, i - 4)][j] + dp[Math.max(0, i - 3)][Math.max(0, j - 1)] + dp[Math.max(0, i - 2)][Math.max(0, j - 2)] + dp[Math.max(0, i - 1)][Math.max(0, j - 3)]);
+            }
+        }
+        return dp[n][n];
+    }
+    
+}
+```
+
+* []
+
+```C++
+class Solution {
+public: 
+   double soupServings(int n) {
+        n = ceil(n / 25.0);
+        if (n >= 180) return 1; 
+        vector<vector<double>> dp(n + 1, vector<double>(n + 1, 0));
+        for (int i = 1; i <= n; i++) dp[0][i] = 1;
+        dp[0][0] = 0.5; //两者相等
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                dp[i][j] = 0.25 * (dp[max(0, i - 4)][j] + dp[max(0, i - 3)][max(0, j - 1)] + dp[max(0, i - 2)][max(0, j - 2)] + dp[max(0, i - 1)][max(0, j - 3)]);
+            }
+        }
+        return dp[n][n];
+    }
+ 
+};
+```
+
