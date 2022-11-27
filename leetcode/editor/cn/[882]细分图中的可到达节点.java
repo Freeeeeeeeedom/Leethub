@@ -53,6 +53,9 @@
 // Related Topics 图 最短路 堆（优先队列） 👍 113 👎 0
 
 
+import java.util.ArrayDeque;
+import java.util.List;
+
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
     public int reachableNodes(int[][] edges, int maxMoves, int n) {
