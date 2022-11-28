@@ -1,0 +1,129 @@
+> Problem: [https://leetcode.cn/problems/largest-sum-of-averages/description/](https://leetcode.cn/problems/largest-sum-of-averages/description/ "https://leetcode.cn/problems/largest-sum-of-averages/description/")
+
+\[TOC]
+
+# 方法一：动态规划 + 前缀和
+
+**命题：平均值和最大的分组的子数组数目必定是 k，证明略**
+
+## 思路
+
+1. 状态表示：dp\[i]\[j]表示nums在区间\[0, i−1]被切分成j个子数组的最大平均值和，sum\[i]表示nums在区间\[0, i - 1]的前缀和。
+
+2. 状态转移方程： j = 1时，即是1个分组，则dp\[i]\[1]表示nums在区间\[0, i−1]的平均值。j > 1时，此时dp\[i]\[j]可以由dp\[x]\[j - 1] + (sum\[i] - sum\[x]) / (i - x)转移过来。x的取值范围思考：x < j - 1显然无法成功分组，则x必须大于等于j-1,即x从j-1枚举到i-1。 ![1669555254776.png](https://pic.leetcode.cn/1669555266-ExWJUX-1669555254776.png)
+
+## 复杂度
+
+- 时间复杂度: $O(kn^2)$
+
+## Code
+
+* C
+
+```C
+double largestSumOfAverages(int* nums, int numsSize, int k){
+    int i, j, x;
+    double dp[numsSize + 1][k + 1], sum[numsSize + 1];
+
+    memset(dp, 0, sizeof(dp));
+    for (sum[0] = 0, i = 1; i <= numsSize; i++) {
+        sum[i] = sum[i - 1] + nums[i - 1];
+        dp[i][1] = sum[i] / i;            
+    }
+
+    for (j = 2; j <= k; j++)
+        for (i = j; i <= numsSize; i++)
+            for (x = j - 1; x < i; x++)
+                dp[i][j] = fmax(dp[i][j], dp[x][j - 1] + (double)(sum[i] - sum[x]) / (i - x));
+
+    return dp[numsSize][k];
+}
+```
+
+# 方法二：动态规划 + 前缀和 + 滚动数组
+
+## 思路
+
+由方法一中的代码可知，dp\[i]\[j]只与dp\[i]\[j-1]这个状态有关系。我们使用滚动数组可以省略第二维，我们在修改代码时需要保证当前的dp\[i]\[j]状态是由上一个dp\[i]\[j-1]状态转移过来的。**即i需要逆序枚举。**
+
+## 复杂度
+
+- 时间复杂度: $O(kn^2)$
+
+## code
+
+* C[]
+
+```C[]
+double largestSumOfAverages(int* nums, int numsSize, int k){
+    int i, j, x;
+    double dp[numsSize + 1], sum[numsSize + 1];
+
+    memset(dp, 0, sizeof(dp));
+    for (sum[0] = 0, i = 1; i <= numsSize; i++) {
+        sum[i] = sum[i - 1] + nums[i - 1];
+        dp[i] = sum[i] / i;            
+    }
+
+    for (j = 2; j <= k; j++)
+        for (i = numsSize; i >= j; i--)
+            for (x = j - 1; x < i; x++)
+                dp[i] = fmax(dp[i], dp[x] + (double)(sum[i] - sum[x]) / (i - x));
+
+    return dp[numsSize];
+}
+```
+
+# 方法三：记忆化搜素 + 前缀和
+
+## 思路
+
+把n个元素分成连续的k组，求平均值的和，答案即是所有可能的最大值。同时把中间结果通过cached\[i]\[j]记录下来，方便快速查询，减少递归调用。cached\[i]\[j]表示nums在区间\[0, i−1]被切分成j个子数组的最大平均值和。
+
+- 先预处理cached\[n]\[1]，1个分组，表示nums在区间\[0, i−1]的平均值。
+
+- 我们从元素末尾开始递归，递归结束条件1、k = 1，标志着分组结束，通过预处理的结果直接返回cached\[n]\[1]。2、如果n < k，元素个数显然无法分成k组，返回0即可。
+
+## 复杂度
+
+- 时间复杂度: $O(kn^2)$
+
+## code
+
+* C[]
+
+```C[]
+#define N 110
+double dfs(int* nums, int n, int k, double (*cached)[N])
+{
+    int i;
+    double s = 0;
+
+    if (n < k || cached[n][k])
+        return cached[n][k];
+    
+    for (i = n - 1; i > 0; i--) {
+        s += nums[i];
+        cached[n][k] = fmax(cached[n][k], dfs(nums, i, k - 1, cached) + s / (n - i));
+    }
+
+    return cached[n][k];
+}
+
+double largestSumOfAverages(int* nums, int numsSize, int k){
+    int i;
+    double sum, cached[numsSize + 1][N];
+    
+    memset(cached, 0, sizeof(cached));
+    for (i = 1; i <= numsSize; i++) {
+        sum = sum + nums[i - 1];
+        cached[i][1] = sum / i;
+    }
+
+    return dfs(nums, numsSize, k, cached);
+}
+```
+
+***
+
+有任何疑问，都可以在评论区交流。如果有帮忙到你，麻烦帮忙点一个赞哈，感谢。

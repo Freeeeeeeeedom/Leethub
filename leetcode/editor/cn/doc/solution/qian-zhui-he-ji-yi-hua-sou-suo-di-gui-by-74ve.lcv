@@ -1,0 +1,57 @@
+> Problem: [813. 最大平均值和的分组](https://leetcode.cn/problems/largest-sum-of-averages/description/)
+
+[TOC]
+
+# 思路
+
+前缀和+记忆化搜索递归
+
+子问题是将前i个数分成k组的最大平均值
+
+# 解题方法
+
+前缀和+记忆化搜索递归
+
+# 复杂度
+
+- 时间复杂度:
+  $O(n^2*k)$
+
+- 空间复杂度:
+  $O(n*k)$
+
+# Code
+
+* []
+
+```TypeScript
+
+const {memoize}=_
+function largestSumOfAverages(nums: number[], k: number): number {
+    const n = nums.length;
+    const presum = Array<number>(n + 1).fill(0);
+    for (let i = 1; i <= n; i++) {
+        presum[i] = presum[i - 1] + nums[i - 1];
+    }
+
+    const dfs = memoize(
+        (n: number, k: number): number => {
+            if (k === 1) {
+                return presum[n] / n;
+            }
+            let ans = 0;
+
+            for (let i = k - 1; i < n; i++) {
+                ans = Math.max(
+                    ans,
+                    dfs(i, k - 1) + (presum[n] - presum[i]) / (n - i)
+                );
+            }
+            return ans;
+        },
+        (n: number, k: number): string => JSON.stringify([n, k])
+    );
+    return dfs(n, k);
+}
+```
+

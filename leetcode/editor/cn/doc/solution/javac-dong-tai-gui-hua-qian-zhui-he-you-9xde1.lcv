@@ -1,0 +1,69 @@
+## 解法一：动态规划
+
+题目将nums分为k段使其分数最大，我们以索引下标为1举例，那么对于前i个数字，分为j段，我们可以枚举最后一段的长度，可能情况有$[i, i],[i - 1, i],...,[k, i], k = j$。统计这些段的分数+以前能够获得的最大分数便是前i个数字分为j段的最大分数。
+
+* 
+
+```
+状态集合：
+    dp[i][j]: 将前i个数字划分为j段能够获得的最大分数
+状态计算：枚举最后一段的分数
+    dp[i][j] = max(dp[i][j], dp[k - 1][j - 1] + score[k, i])
+score[k, i]: 第k个数字~第i个数字的分数
+```
+
+对于$score[k, i]$可以利用变量sum保存，倒序枚举k。
+- 时间复杂度：$O(n^2k)$
+- 空间复杂度：$O(nk)$
+
+* []
+
+```Java
+class Solution {
+    public double largestSumOfAverages(int[] nums, int K) {
+        int n = nums.length;
+        double[][] dp = new double[n + 5][K + 5];
+        for (int i = 0; i <= n; i++) Arrays.fill(dp[i], -0x3f3f3f3f); //初始状态为-无穷，代表可不行
+        dp[0][0] = 0;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= K; j++) { 
+                double sum = 0;
+                for (int k = i; k >= j; k--) {
+                    sum += nums[k - 1];
+                    dp[i][j] = Math.max(dp[i][j], dp[k - 1][j - 1] + sum / (i - k + 1));
+                } 
+            } 
+        }
+        return dp[n][K];
+    }
+}
+```
+
+* []
+
+```C++
+class Solution {
+public:
+    double largestSumOfAverages(vector<int>& nums, int K) {
+        int n = nums.size();
+        vector<vector<double>> dp(n + 5, vector<double>(K + 5, -0x3f3f3f3f));  //初始状态为-无穷，代表可不行
+        dp[0][0] = 0;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= K; j++) { 
+                double sum = 0;
+                for (int k = i; k >= j; k--) {
+                    sum += nums[k - 1];
+                    dp[i][j] = max(dp[i][j], dp[k - 1][j - 1] + sum / (i - k + 1));
+                } 
+            } 
+        }
+        return dp[n][K];
+    }
+};
+```
+
+- 相似题目：[完美分割的方案数](https://leetcode.cn/problems/number-of-beautiful-partitions/solutions/1986741/java-dong-tai-gui-hua-qian-zhui-he-you-h-y05g/) | [最小移动总距离](**Bold**) | [安排邮筒](**Bold**)
+
+--- 
+
+如果有问题,欢迎评论区交流, 如果有帮助到你，请给题解点个赞和收藏哈~~~
