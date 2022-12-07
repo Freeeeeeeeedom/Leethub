@@ -1,0 +1,60 @@
+## 解法一：贪心 + 计数
+
+我们首先应该从正反两个方向去分析，对于不合法的情况：**只要两个数组一个全部变成6，一个全部变成1后仍然达不到要求**，即变成6的数组和小于变成1的数组和，那么这种情况直接返回-1。 <br><br>
+对于合法情况，一定能够使得两个数组的和相等，那么如何让总的操作次数最少呢？<br><br>
+我们用$sum1$和$sum2$分别代表$nums1$和$nums2$的和，这里不妨假设$sum1 > sum2$。那么为了能使得两个数组的和相等，我们需要增加sum2的值，减少sum1的值，并且让操作次数尽可能少。为了使操作次数尽可能地少，很直观的一种想法就是**尽可能每一次让增加或减少的数尽可能大**。我们可以用$target$表示$sum1 - sum2$,我们的目标是使$target$变为0。<br><br>
+为了使每一次增加的数尽可能大，减少的数尽可能小，我们首先让$nums1$中所有的$6$先减少，然后再让$nums2$中所有的$1$增加，接下来一次是5和2,...2和5，直至$target$变为0。 <br><br>
+我们可以用哈希表来统计每次的增加量和减少量，对于$nums1$中的6每次减少量为5，$num2$中的1每次增加量为5，这些操作都会使得target减少，那么统计$nums1$中的6和$nums2$中的1保存再mp[5]中，代表每次target能够减少的次数。
+
+- 时间复杂度：$O(n)$
+- 空间复杂度：$O(1)$
+
+* []
+
+```java
+class Solution {
+    int[] mp = new int[6];
+    public int minOperations(int[] nums1, int[] nums2) {
+        int n1 = nums1.length, n2 = nums2.length, ans = 0;
+        if (n1 * 6 < n2 || n2 * 6 < n1) return -1; //一定不可行
+        int target = Arrays.stream(nums1).sum() - Arrays.stream(nums2).sum(); //可行情况
+        if (target < 0) return minOperations(nums2, nums1);//默认nums1为sum大的数组 
+        for (int x : nums1) mp[x - 1]++; //对于每个数可以减少的量
+        for (int x : nums2) mp[6 - x]++; //对于每个数可以增加的量 
+        for (int i = 5; i >= 1 && target > 0; i--) {
+            int cnt = Math.min(mp[i], (target + i - 1) / i); //最少需要的个数 +(i- 1)为了向上取整。
+            ans += cnt;
+            target -= cnt * i; //减去能够减少的最大值，若小于等等于0，代表已经使得两个数组相等
+        }
+        return ans;
+    }
+}
+```
+
+* []
+
+```cpp
+class Solution {
+public:  
+    int minOperations(vector<int>& nums1, vector<int>& nums2) {    
+        int n1 = nums1.size(), n2 = nums2.size(), ans = 0;
+        if (n1 * 6 < n2 || n2 * 6 < n1) return -1; //一定不可行
+        int target = accumulate(nums1.begin(), nums1.end(), 0) - accumulate(nums2.begin(), nums2.end(), 0); //可行情况
+        if (target < 0) return minOperations(nums2, nums1);//默认nums1为sum大的数组   
+        vector<int> mp(6, 0);
+        for (int x : nums1) mp[x - 1]++; //对于每个数可以减少的量
+        for (int x : nums2) mp[6 - x]++; //对于每个数可以增加的量 
+        for (int i = 5; i >= 1 && target > 0; i--) {
+            int cnt = min(mp[i], (target + i - 1) / i); //最少需要的个数 +(i- 1)为了向上取整。
+            ans += cnt;
+            target -= cnt * i; //减去能够减少的最大值，若小于等等于0，代表已经使得两个数组相等
+        }
+        return ans;
+    }
+};
+```
+
+--- 
+
+如果有问题,欢迎评论区交流, 如果有帮助到你，请给题解点个赞和收藏哈~~~
+
