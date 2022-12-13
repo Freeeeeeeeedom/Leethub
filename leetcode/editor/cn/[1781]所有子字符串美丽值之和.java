@@ -48,7 +48,7 @@ class Solution {
         int l = 0;
         int r = 0;
 
-        int max 
+        int max
         while(r < n){
             cnt[cnt[r]-'a']++;
 
