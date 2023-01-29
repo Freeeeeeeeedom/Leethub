@@ -67,5 +67,63 @@ class Solution {
         if((x1-x0) * (x1-x0) + (y1-y0) * (y1-y0) <= r * r) return true;
         return false;
     }
+
+
+
+    public int distinctIntegers(int n) {
+
+    }
+
+    int mod = 1000000007;
+    public int monkeyMove(int n) {
+        BigInteger fir = new BigInteger(2);
+        BigInteger ans = fir.modPow(n,mod);
+        return Integer.valueOf(ans) - 2;
+    }
+
+    public long putMarbles(int[] weights, int k) {
+        int n = weights.length;
+        if(n == 2) return 0;
+        long maxweight = 0;
+        long minweight = 0;
+
+
+    }
+
+    public long maxWeight(int[] weights, int k){
+        int n = weights.length;
+        HashSet<Integer> hs = new HashSet<>();
+        for(int i=0;i<n;i++){
+            hs.add(i);
+
+        }
+
+
+    }
+
+    public long countQuadruplets(int[] nums) {
+        int n = nums.length;
+        int[][] dp = new int[n+10][n+10];
+        for(int i=1;i<=n;i++) dp[i][1] = 1;
+        for(int i=1;i<=n;i++){
+            for(int k=1;k<i;k++){
+                if(nums[i-1]> nums[k-1]) dp[i][1] += dp[k][0];
+            }
+            for(int k=1;k<i;k++){
+                if(nums[i-1]> nums[k-1]) dp[i][2] += dp[k][1];
+            }
+            for(int k=1;k<i;k++){
+                if(nums[i-1]> nums[k-1]) dp[i][3] += dp[k][2];
+            }
+            for(int k=1;k<i;k++){
+                if(nums[i-1]> nums[k-1]) dp[i][4] += dp[k][3];
+            }
+        }
+        long ans = 0;
+        for(int i=1;i<=n;i++){
+            ans += dp[i][4];
+        }
+        return ans;
+    }
 }
 //leetcode submit region end(Prohibit modification and deletion)
