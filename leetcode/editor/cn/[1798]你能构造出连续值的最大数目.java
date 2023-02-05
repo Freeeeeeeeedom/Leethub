@@ -63,5 +63,41 @@ class Solution {
         }
         return r;
     }
+    private List<String> sortMap (Map<String, Integer> map) {
+        List<Map.Entry<String, Integer>> list = new ArrayList<>(map.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+            @Override
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                return o2.getValue() - o1.getValue();
+            }
+        });
+
+        List<String> productList = new ArrayList<>();
+        for (Map.Entry s : list) {
+            productList.add(String.valueOf(s.getKey()));
+        }
+        return productList;
+    }
+
+    public int maximizeWin(int[] prizePositions, int k) {
+        int n = prizePositions.length;
+
+        Map<Integer, Integer> map = new HashMap<>();
+        int[] sum = new int[n+1];
+        for(int i=1;i<=n;i++){
+            sum[i] =  sum[i-1] + prizePositions[i-1];
+        }
+        for(int i=0;i<n-k;i++){
+            map.put(i,sum[i+k+1]-sum[i]);
+        }
+
+        map = sortMap(map);
+
+        for(Map.Entry<Integer,Integer> entry : map.entrySet()){
+
+        }
+
+
+    }
 }
 //leetcode submit region end(Prohibit modification and deletion)
