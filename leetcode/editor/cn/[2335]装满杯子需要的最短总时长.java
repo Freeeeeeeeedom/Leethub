@@ -60,5 +60,71 @@ class Solution {
         if(a + b <= c) return c;
         return c + (a + b - c + 1)/2;
     }
+
+    //T1
+    public long findTheArrayConcVal(int[] nums) {
+        int n = nums.length;
+        int l = 0;
+        int r = n-1;
+        long ans = 0;
+        while(l < r){
+            int val = Integer.parseInt(String.valueOf(nums[l]) + String.valueOf(nums[r]));
+            ans += val;
+            l ++;
+            r --;
+        }
+        return ans;
+    }
+    // >=
+    public int l_s(int[] nums,int target){
+        int l = 0;
+        int r = nums.length-1;
+        while(l < r){
+            int mid = l + r + 1>>1;
+            if(nums[mid] >= target) r = mid;
+            else l++;
+        }
+        return l;
+    }
+    // >
+    public int r_s(int[] nums,int target){
+        int l = 0;
+        int r = nums.length-1;
+        while(l < r){
+            int mid = l + r + 1>>1;
+            if(nums[mid] > target) r = mid;
+            else l++;
+        }
+        return r;
+    }
+    //T2
+    public long countFairPairs(int[] nums, int lower, int upper) {
+        int n = nums.length;
+        Arrays.sort(nums);
+        long ans = 0;
+
+        for(int i=0;i<n-1;i++){
+            int val = nums[i];
+            int min = lower - val;
+            int max = upper - val;
+           int l = l_s(nums,min);
+           int r = r_s(nums,min);
+           ans += r - l + 1;
+        }
+        return ans;
+    }
+
+    private final static int[] NOT_FOUND = new int[]{-1,-1};
+
+    public int[][] substringXorQueries(String S, int[][] queries){
+        var s = S.toCharArray();
+        var m = new HashMap<Integer,int[]>();
+        for(int l=0, n = s.length; l < n; l++){
+            for(int r=l,x=0;r<Math.min(l+30,n);r++){
+                x = x<<1 | (s[r] & 1);
+                if(!m.)
+            }
+        }
+    }
 }
 //leetcode submit region end(Prohibit modification and deletion)
