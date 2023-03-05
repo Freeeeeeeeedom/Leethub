@@ -65,36 +65,5 @@ class Solution {
         return cache[k][m] = sum[k] - mn;
     }
 
-
-
-
-
-
-    public int[] leftRigthDifference(int[] nums) {
-        int n = nums.length;
-        int[] leftsum = new int[n+1];
-        int[] rightsum = new int[n+1];
-
-        for(int i=0;i<n;i++) leftsum[i+1] = leftsum[i] + nums[i];
-        for(int i=n-1;i>0;i--) rightsum[i] = rightsum[i+1] + nums[i];
-
-        int[] ans = new int[n];
-        for(int i=0;i<n;i++) ans[i] = Math.abs(leftsum[i-1] - rightsum[i+1]);
-        return ans;
-    }
-
-    public int[] divisibilityArray(String word, int m) {
-        char[] words = word.toCharArray();
-        int n = words.length;
-
-        int[] ans = new int[n];
-        int val = 0;
-        for(int i=0;i<n;i++){
-            int t = words[i] - '0';
-            val = (10 * val + t) % m;
-            ans[i] = val == 0 ? 1 : 0;
-        }
-        return ans;
-    }
 }
 //leetcode submit region end(Prohibit modification and deletion)
